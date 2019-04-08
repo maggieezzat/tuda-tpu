@@ -24,10 +24,12 @@ import pandas
 from six.moves import urllib
 import tensorflow as tf
 
-directory = "C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
+directory = "E:/TUDA/german-speechdata-package-v2"
+
 
 def delete():
-    with open("C:/Users/MaggieEzzat/Desktop/deep_speech/data/corrupted.txt") as corfile:
+    filesCount = 0
+    with open("C:/Users/AbdulrhmanHamahmi/Desktop/tuda/corrupted.txt") as corfile:
         content = corfile.readlines()
     content = [x.strip() for x in content]
     cor = []
@@ -39,6 +41,7 @@ def delete():
         files = [f for f in listdir(join(directory, path)) if isfile(join(directory, path, f))]
         deleted = 0
         for file in files:
+            filesCount+=1
             if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) or (".wav" in file and os.path.getsize(join(directory, path, file)) <= 4096 ):
                 deleted += 1
             else :
@@ -74,9 +77,11 @@ def delete():
                         sofar += 1
                         break
         print()
+    return filesCount
 
 
-def generate_csv():
+def generate_csv(filesCount):
+    filesSoFar = 1
     data_dir = directory
     sources = ["test", "dev", "train"]
     for source_name in sources:
@@ -103,7 +108,14 @@ def generate_csv():
                         found += 1
                     if found >= 2 :
                         break
-                print(source_name + " : Proccessed : " +  file, end="\r")
+                #print(source_name + " : Proccessed : " +  file, end="\r")
+                print(
+                            "Processing : "
+                            + str(int((filesSoFar / filesCount) * 100))
+                            + "%",
+                            end="\r",
+                        )
+                filesSoFar += 1
         print()
         df = pandas.DataFrame(
             data=csv, columns=["wav_filename", "wav_filesize", "transcript"])
@@ -115,9 +127,9 @@ def generate_csv():
 
 
 def main(_):
-    delete()
-    generate_csv()
+    fileC = delete()
+    generate_csv(fileC)
 
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)
-  absl_app.run(main)
+  absl_app.run(main)    
