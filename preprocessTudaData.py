@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from os import listdir, remove
 from os.path import isfile, join
+import soundfile
 
 import codecs
 import fnmatch
@@ -24,25 +25,27 @@ import pandas
 from six.moves import urllib
 import tensorflow as tf
 
-directory = "E:/TUDA/german-speechdata-package-v2"
+directory = "C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
 
 
 def delete():
     filesCount = 0
-    with open("C:/Users/AbdulrhmanHamahmi/Desktop/tuda/corrupted.txt") as corfile:
+    with open("C:/Users/MaggieEzzat/Desktop/deep_speech/data/corrupted.txt") as corfile:
         content = corfile.readlines()
     content = [x.strip() for x in content]
     cor = []
     for jk in range(len(content)):
         cor.append(content[jk][37:57])
 
-    paths = ["test", "dev","train"]
+    paths = ["test", "dev"]
+    #,"train"]
     for path in paths:
         files = [f for f in listdir(join(directory, path)) if isfile(join(directory, path, f))]
         deleted = 0
         for file in files:
-            filesCount+=1
-            if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) or (".wav" in file and os.path.getsize(join(directory, path, file)) <= 4096 ):
+            if(".xml" in file):
+                filesCount+=1
+            if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
                 deleted += 1
             else :
                 for crptd in cor:
@@ -51,7 +54,17 @@ def delete():
                         break
         sofar = 1
         for file in files:
-            if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) or (".wav" in file and os.path.getsize(join(directory, path, file)) <= 4096 ):
+            if(".wav" in file):
+                data, _ = soundfile.read(join(directory, path, file))
+                if(len(data) <= 0):
+                    remove(join(directory, path, file))
+                    print(
+                            "Deleting from "
+                            + path
+                            ,end="\r"
+                        )
+                    sofar += 1
+            elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
                 remove(join(directory, path, file))
                 print(
                             "Deleting from "
@@ -78,13 +91,15 @@ def delete():
                         break
         filesCount -= deleted
         print()
+        print("=====================")
     return filesCount
 
 
 def generate_csv(filesCount):
     filesSoFar = 1
     data_dir = directory
-    sources = ["test", "dev", "train"]
+    sources = ["test", "dev"]
+    #, "train"]
     for source_name in sources:
         csv = []
         dir_path=os.path.join(data_dir, source_name)
@@ -96,7 +111,11 @@ def generate_csv(filesCount):
                     print("error")
                     continue
                 sent = recording.find('cleaned_sentence')
-                sent = sent.text
+                sent = sent.text.lower()
+                sent = sent.replace("ä","ae")
+                sent = sent.replace("ö","oe")
+                sent = sent.replace("ü","ue")
+                sent = sent.replace("ß","ss")
                 transcript = unicodedata.normalize("NFKD", sent).encode(
                     "utf8", "ignore").decode("utf8", "ignore").strip().lower()
                 file_xml,_ = file.split(".",1)
