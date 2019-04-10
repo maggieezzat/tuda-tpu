@@ -76,6 +76,7 @@ def delete():
                         )
                         sofar += 1
                         break
+        filesCount -= deleted
         print()
     return filesCount
 
@@ -97,7 +98,7 @@ def generate_csv(filesCount):
                 sent = recording.find('cleaned_sentence')
                 sent = sent.text
                 transcript = unicodedata.normalize("NFKD", sent).encode(
-                    "ascii", "ignore").decode("ascii", "ignore").strip().lower()
+                    "utf8", "ignore").decode("utf8", "ignore").strip().lower()
                 file_xml,_ = file.split(".",1)
                 found = 0
                 for file_wav in os.listdir(dir_path):
