@@ -246,31 +246,32 @@ def delete():
                             ,end="\r"
                         )
                     sofar += 1
-            elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
-                remove(join(directory, path, file))
-                print(
-                            "Deleting from "
-                            + path
-                            + " : "
-                            + str(int((sofar / deleted) * 100))
-                            + "%",
-                            end="\r",
-                        )
-                sofar += 1
-            else :
-                for crptd in cor:
-                    if( (".wav" in file) and (crptd in file)):
+                else:
+                    if("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
                         remove(join(directory, path, file))
                         print(
-                            "Deleting from "
-                            + path
-                            + " : "
-                            + str(int((sofar / deleted) * 100))
-                            + "%",
-                            end="\r",
-                        )
+                                    "Deleting from "
+                                    + path
+                                    + " : "
+                                    + str(int((sofar / deleted) * 100))
+                                    + "%",
+                                    end="\r",
+                                )
                         sofar += 1
-                        break
+                    else :
+                        for crptd in cor:
+                            if( (".wav" in file) and (crptd in file)):
+                                remove(join(directory, path, file))
+                                print(
+                                    "Deleting from "
+                                    + path
+                                    + " : "
+                                    + str(int((sofar / deleted) * 100))
+                                    + "%",
+                                    end="\r",
+                                )
+                                sofar += 1
+                                break
         filesCount -= deleted
         print()
         print("=====================")
