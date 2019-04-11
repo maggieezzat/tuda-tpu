@@ -320,8 +320,8 @@ def define_deep_speech_flags():
   flags.adopt_module_key_flags(flags_core)
 
   flags_core.set_defaults(
-      model_dir="/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2/deep_speech_model/",
-      export_dir="/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2/deep_speech_saved_model/",
+      model_dir= "E:/TUDA/german-speechdata-package-v2/deep_speech_model/",
+      export_dir="E:/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
       train_epochs=10,
       batch_size=128,
       hooks="")
@@ -333,12 +333,12 @@ def define_deep_speech_flags():
 
   flags.DEFINE_string(
       name="train_data_dir",
-      default="C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2/dev.csv",
+      default="E:/TUDA/german-speechdata-package-v2/dev.csv",
       help=flags_core.help_wrap("The csv file path of train dataset."))
 
   flags.DEFINE_string(
       name="eval_data_dir",
-      default="C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2/dev.csv",
+      default="E:/TUDA/german-speechdata-package-v2/dev.csv",
       help=flags_core.help_wrap("The csv file path of evaluation dataset."))
 
   flags.DEFINE_bool(

@@ -30,6 +30,14 @@ import collections
 import re
 import num2words
 
+directory = "E:/TUDA/german-speechdata-package-v2"
+
+#"C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
+#
+#
+
+# =============================== Vocab ===================================
+
 #
 #   Number patterns
 #
@@ -97,9 +105,6 @@ for all, replacement in replacer.items():
 #
 #   Utils
 #
-
-
-directory = "C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
 
 def replace_symbols(word):
     """ Apply all replacement characters/rules to the given word. """
@@ -201,9 +206,13 @@ def clean_sentence(sentence):
 
     return ' '.join(cleaned_words)
 
+
+# =============================== End Vocab ===================================
+
 def delete():
     filesCount = 0
-    with open("C:/Users/MaggieEzzat/Desktop/deep_speech/data/corrupted.txt") as corfile:
+    txtCor = os.path.join(os.path.dirname(__file__), "corrupted.txt")
+    with open("txtCor) as corfile:
         content = corfile.readlines()
     content = [x.strip() for x in content]
     cor = []
@@ -283,7 +292,7 @@ def generate_csv(filesCount):
                     print("error")
                     continue
                 sent = recording.find('cleaned_sentence')
-                #sent = sent.text.lower()
+                sent = sent.text.lower()
                 #sent = sent.replace("ä","ae")
                 #sent = sent.replace("ö","oe")
                 #sent = sent.replace("ü","ue")
