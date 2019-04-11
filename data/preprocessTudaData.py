@@ -212,7 +212,7 @@ def clean_sentence(sentence):
 def delete():
     filesCount = 0
     txtCor = os.path.join(os.path.dirname(__file__), "corrupted.txt")
-    with open("txtCor) as corfile:
+    with open(txtCor) as corfile:
         content = corfile.readlines()
     content = [x.strip() for x in content]
     cor = []
