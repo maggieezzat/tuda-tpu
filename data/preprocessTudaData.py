@@ -32,7 +32,7 @@ import num2words
 
 directory = "E:/TUDA/german-speechdata-package-v2"
 
-#"C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
+# "C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
 #
 #
 
@@ -41,45 +41,45 @@ directory = "E:/TUDA/german-speechdata-package-v2"
 #
 #   Number patterns
 #
-int_pattern = re.compile(r'[0-9]+')
-float_pattern = re.compile(r'[0-9]+[,\.][0-9]+')
+int_pattern = re.compile(r"[0-9]+")
+float_pattern = re.compile(r"[0-9]+[,\.][0-9]+")
 
 #
 #   Allowed characters a-zA-Z'äüö
 #
 allowed = list(string.ascii_lowercase)
 allowed.append("'")
-allowed.append(' ')
-allowed.extend(list('äöü'))
+allowed.append(" ")
+allowed.extend(list("äöü"))
 
 #
 #   Replacement characters
 #
 replacer = {
-    'àáâãåāăąǟǡǻȁȃȧ': 'a',
-    'æǣǽ': 'ä',
-    'çćĉċč': 'c',
-    'ďđ': 'd',
-    'èéêëēĕėęěȅȇȩε': 'e',
-    'ĝğġģǥǧǵ': 'g',
-    'ĥħȟ': 'h',
-    'ìíîïĩīĭįıȉȋ': 'i',
-    'ĵǰ': 'j',
-    'ķĸǩǩκ': 'k',
-    'ĺļľŀł': 'l',
-    'м': 'm',
-    'ñńņňŉŋǹ': 'n',
-    'òóôõøōŏőǫǭǿȍȏðο': 'o',
-    'œ': 'ö',
-    'ŕŗřȑȓ': 'r',
-    'śŝşšș': 's',
-    'ţťŧț': 't',
-    'ùúûũūŭůűųȕȗ': 'u',
-    'ŵ': 'w',
-    'ýÿŷ': 'y',
-    'źżžȥ': 'z',
-    'ß': 'ss',
-    '-­': ' '
+    "àáâãåāăąǟǡǻȁȃȧ": "a",
+    "æǣǽ": "ä",
+    "çćĉċč": "c",
+    "ďđ": "d",
+    "èéêëēĕėęěȅȇȩε": "e",
+    "ĝğġģǥǧǵ": "g",
+    "ĥħȟ": "h",
+    "ìíîïĩīĭįıȉȋ": "i",
+    "ĵǰ": "j",
+    "ķĸǩǩκ": "k",
+    "ĺļľŀł": "l",
+    "м": "m",
+    "ñńņňŉŋǹ": "n",
+    "òóôõøōŏőǫǭǿȍȏðο": "o",
+    "œ": "ö",
+    "ŕŗřȑȓ": "r",
+    "śŝşšș": "s",
+    "ţťŧț": "t",
+    "ùúûũūŭůűųȕȗ": "u",
+    "ŵ": "w",
+    "ýÿŷ": "y",
+    "źżžȥ": "z",
+    "ß": "ss",
+    "-­": " ",
 }
 
 #
@@ -87,11 +87,11 @@ replacer = {
 #
 
 special_replacers = {
-    ' $ ': 'dollar',
-    ' £ ': 'pfund',
-    'm³': 'kubikmeter',
-    'km²': 'quadratkilometer',
-    'm²': 'quadratmeter'
+    " $ ": "dollar",
+    " £ ": "pfund",
+    "m³": "kubikmeter",
+    "km²": "quadratkilometer",
+    "m²": "quadratmeter",
 }
 
 replacements = {}
@@ -105,6 +105,7 @@ for all, replacement in replacer.items():
 #
 #   Utils
 #
+
 
 def replace_symbols(word):
     """ Apply all replacement characters/rules to the given word. """
@@ -126,7 +127,7 @@ def remove_symbols(word):
             bad_characters.append(c)
 
     for c in bad_characters:
-        result = result.replace(c, '')
+        result = result.replace(c, "")
 
     return result
 
@@ -138,19 +139,21 @@ def word_to_num(word):
     match = float_pattern.search(result)
 
     while match is not None:
-        num_word = num2words.num2words(float(match.group().replace(',', '.')), lang='de').lower()
-        before = result[:match.start()]
-        after = result[match.end():]
-        result = ' '.join([before, num_word, after])
+        num_word = num2words.num2words(
+            float(match.group().replace(",", ".")), lang="de"
+        ).lower()
+        before = result[: match.start()]
+        after = result[match.end() :]
+        result = " ".join([before, num_word, after])
         match = float_pattern.search(result)
 
     match = int_pattern.search(result)
 
     while match is not None:
-        num_word = num2words.num2words(int(match.group()), lang='de')
-        before = result[:match.start()]
-        after = result[match.end():]
-        result = ' '.join([before, num_word, after])
+        num_word = num2words.num2words(int(match.group()), lang="de")
+        before = result[: match.start()]
+        after = result[match.end() :]
+        result = " ".join([before, num_word, after])
         match = int_pattern.search(result)
 
     return result
@@ -183,7 +186,7 @@ def clean_word(word):
 
     if len(bad_chars) > 0:
         print('Bad characters in "{}"'.format(word))
-        print('--> {}'.format(', '.join(bad_chars)))
+        print("--> {}".format(", ".join(bad_chars)))
 
     return word
 
@@ -197,17 +200,18 @@ def clean_sentence(sentence):
     4. delete disallowed symbols
     4. join with spaces
     """
-    words = sentence.strip().split(' ')
+    words = sentence.strip().split(" ")
     cleaned_words = []
 
     for word in words:
         cleaned_word = clean_word(word)
         cleaned_words.append(cleaned_word)
 
-    return ' '.join(cleaned_words)
+    return " ".join(cleaned_words)
 
 
 # =============================== End Vocab ===================================
+
 
 def delete():
     filesCount = 0
@@ -219,78 +223,52 @@ def delete():
     for jk in range(len(content)):
         cor.append(content[jk][37:57])
 
-    paths = ["test", "dev","train"]
+    paths = ["test", "dev", "train"]
     for path in paths:
-        files = [f for f in listdir(join(directory, path)) if isfile(join(directory, path, f))]
+        files = [
+            f
+            for f in listdir(join(directory, path))
+            if isfile(join(directory, path, f))
+        ]
         deleted = 0
         for file in files:
-            if(".xml" in file):
-                filesCount+=1
-            if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
+            if ".xml" in file:
+                filesCount += 1
+            if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file):
                 deleted += 1
-            else :
+            else:
                 for crptd in cor:
-                    if( (".wav" in file) and (crptd in file)):
+                    if (".wav" in file) and (crptd in file):
                         deleted += 1
                         break
         sofar = 1
         for file in files:
-            if(".wav" in file):
-                if(os.path.getsize(join(directory, path, file)) <=0):
-                     remove(join(directory, path, file))
-                     continue
+            if ".wav" in file:
+                if os.path.getsize(join(directory, path, file)) <= 0:
+                    remove(join(directory, path, file))
+                    continue
 
                 data, _ = soundfile.read(join(directory, path, file))
-                if(len(data) <= 0):
+                if len(data) <= 0:
+                    remove(join(directory, path, file))
+                    print("Deleting from " + path, end="\r")
+                    sofar += 1
+                elif (
+                    ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file)
+                ):
                     remove(join(directory, path, file))
                     print(
-                            "Deleting from "
-                            + path
-                            ,end="\r"
-                        )
+                        "Deleting from "
+                        + path
+                        + " : "
+                        + str(int((sofar / deleted) * 100))
+                        + "%",
+                        end="\r",
+                    )
                     sofar += 1
-<<<<<<< HEAD
                 else:
-                    if("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
-                        remove(join(directory, path, file))
-                        print(
-                                    "Deleting from "
-                                    + path
-                                    + " : "
-                                    + str(int((sofar / deleted) * 100))
-                                    + "%",
-                                    end="\r",
-                                )
-                        sofar += 1
-                    else :
-                        for crptd in cor:
-                            if( (".wav" in file) and (crptd in file)):
-                                remove(join(directory, path, file))
-                                print(
-                                    "Deleting from "
-                                    + path
-                                    + " : "
-                                    + str(int((sofar / deleted) * 100))
-                                    + "%",
-                                    end="\r",
-                                )
-                                sofar += 1
-                                break
-=======
-                elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
-                    remove(join(directory, path, file))
-                    print(
-                                "Deleting from "
-                                + path
-                                + " : "
-                                + str(int((sofar / deleted) * 100))
-                                + "%",
-                                end="\r",
-                            )
-                    sofar += 1
-                else :
                     for crptd in cor:
-                        if( (".wav" in file) and (crptd in file)):
+                        if (".wav" in file) and (crptd in file):
                             remove(join(directory, path, file))
                             print(
                                 "Deleting from "
@@ -302,11 +280,11 @@ def delete():
                             )
                             sofar += 1
                             break
->>>>>>> 66db6bb991ad538d63f13cdd621ed8a203285f0a
         filesCount -= deleted
         print()
         print("=====================")
     return filesCount
+
 
 def generate_csv(filesCount):
     filesSoFar = 1
@@ -314,53 +292,54 @@ def generate_csv(filesCount):
     sources = ["test", "dev", "train"]
     for source_name in sources:
         csv = []
-        dir_path=os.path.join(data_dir, source_name)
+        dir_path = os.path.join(data_dir, source_name)
         for file in os.listdir(dir_path):
             if file.endswith(".xml"):
                 tree = ET.parse(os.path.join(dir_path, file))
                 recording = tree.getroot()
-                if(recording.find('html')):
+                if recording.find("html"):
                     print("error")
                     continue
-                sent = recording.find('cleaned_sentence')
+                sent = recording.find("cleaned_sentence")
                 sent = sent.text.lower()
-                #sent = sent.replace("ä","ae")
-                #sent = sent.replace("ö","oe")
-                #sent = sent.replace("ü","ue")
-                #sent = sent.replace("ß","ss")
-                #transcript = unicodedata.normalize("NFKD", sent).encode(
-                 #   "utf8", "ignore").decode("utf8", "ignore").strip().lower()
+                # sent = sent.replace("ä","ae")
+                # sent = sent.replace("ö","oe")
+                # sent = sent.replace("ü","ue")
+                # sent = sent.replace("ß","ss")
+                # transcript = unicodedata.normalize("NFKD", sent).encode(
+                #   "utf8", "ignore").decode("utf8", "ignore").strip().lower()
                 transcript = clean_sentence(sent)
-                file_xml,_ = file.split(".",1)
+                file_xml, _ = file.split(".", 1)
                 found = 0
                 for file_wav in os.listdir(dir_path):
                     if file_wav.startswith(file_xml) and file_wav.endswith(".wav"):
-                        file_wav_dir = os.path.join(dir_path,file_wav)
+                        file_wav_dir = os.path.join(dir_path, file_wav)
                         wav_filesize = os.path.getsize(file_wav_dir)
                         csv.append((file_wav_dir, wav_filesize, transcript))
                         found += 1
-                    if found >= 2 :
+                    if found >= 2:
                         break
-                #print(source_name + " : Proccessed : " +  file, end="\r")
+                # print(source_name + " : Proccessed : " +  file, end="\r")
                 print(
-                            "Processing : "
-                            + str(int((filesSoFar / filesCount) * 100))
-                            + "%",
-                            end="\r",
-                        )
+                    "Processing : " + str(int((filesSoFar / filesCount) * 100)) + "%",
+                    end="\r",
+                )
                 filesSoFar += 1
         print()
         df = pandas.DataFrame(
-            data=csv, columns=["wav_filename", "wav_filesize", "transcript"])
-        output_file=os.path.join(data_dir,source_name+".csv")
+            data=csv, columns=["wav_filename", "wav_filesize", "transcript"]
+        )
+        output_file = os.path.join(data_dir, source_name + ".csv")
         df.to_csv(output_file, index=False, sep="\t")
 
         tf.logging.info("Successfully generated csv file {}".format(output_file))
+
 
 def main(_):
     fileC = delete()
     generate_csv(fileC)
 
+
 if __name__ == "__main__":
-  tf.logging.set_verbosity(tf.logging.INFO)
-  absl_app.run(main)    
+    tf.logging.set_verbosity(tf.logging.INFO)
+    absl_app.run(main)
