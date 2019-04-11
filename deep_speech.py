@@ -323,6 +323,7 @@ def define_deep_speech_flags():
         model_dir="E:/TUDA/german-speechdata-package-v2/deep_speech_model/",
         export_dir="E:/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
         train_epochs=1,
+        #train_epochs=10,
         batch_size=128,
         hooks="",
     )
@@ -378,13 +379,15 @@ def define_deep_speech_flags():
     # RNN related flags
     flags.DEFINE_integer(
         name="rnn_hidden_size",
-        default=100,
+        default=50,
+        #default=800,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
         default=2,
+        #default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 
