@@ -223,7 +223,8 @@ def delete():
     for jk in range(len(content)):
         cor.append(content[jk][37:57])
 
-    paths = ["test", "dev", "train"]
+    paths = ["test", "dev"]
+    # , "train"]
     for path in paths:
         files = [
             f
@@ -234,13 +235,20 @@ def delete():
         for file in files:
             if ".xml" in file:
                 filesCount += 1
-            if ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file):
+            if os.path.getsize(join(directory, path, file)) <= 0:
                 deleted += 1
-            else:
-                for crptd in cor:
-                    if (".wav" in file) and (crptd in file):
-                        deleted += 1
-                        break
+                continue
+            if(".wav" in file):
+                data, _ = soundfile.read(join(directory, path, file))
+                if len(data) <= 0:
+                    deleted += 1
+                elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file):
+                    deleted += 1
+                else:
+                    for crptd in cor:
+                        if (".wav" in file) and (crptd in file):
+                            deleted += 1
+                            break
         sofar = 1
         for file in files:
             if ".wav" in file:
@@ -289,7 +297,8 @@ def delete():
 def generate_csv(filesCount):
     filesSoFar = 1
     data_dir = directory
-    sources = ["test", "dev", "train"]
+    sources = ["test", "dev"]
+    # , "train"]
     for source_name in sources:
         csv = []
         dir_path = os.path.join(data_dir, source_name)
