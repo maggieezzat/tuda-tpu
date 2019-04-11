@@ -219,8 +219,7 @@ def delete():
     for jk in range(len(content)):
         cor.append(content[jk][37:57])
 
-    paths = ["test", "dev"]
-    #,"train"]
+    paths = ["test", "dev","train"]
     for path in paths:
         files = [f for f in listdir(join(directory, path)) if isfile(join(directory, path, f))]
         deleted = 0
@@ -237,6 +236,10 @@ def delete():
         sofar = 1
         for file in files:
             if(".wav" in file):
+                if(os.path.getsize(join(directory, path, file)) <=0):
+                     remove(join(directory, path, file))
+                     continue
+
                 data, _ = soundfile.read(join(directory, path, file))
                 if(len(data) <= 0):
                     remove(join(directory, path, file))
@@ -246,31 +249,31 @@ def delete():
                             ,end="\r"
                         )
                     sofar += 1
-            elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
-                remove(join(directory, path, file))
-                print(
-                            "Deleting from "
-                            + path
-                            + " : "
-                            + str(int((sofar / deleted) * 100))
-                            + "%",
-                            end="\r",
-                        )
-                sofar += 1
-            else :
-                for crptd in cor:
-                    if( (".wav" in file) and (crptd in file)):
-                        remove(join(directory, path, file))
-                        print(
-                            "Deleting from "
-                            + path
-                            + " : "
-                            + str(int((sofar / deleted) * 100))
-                            + "%",
-                            end="\r",
-                        )
-                        sofar += 1
-                        break
+                elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file) :
+                    remove(join(directory, path, file))
+                    print(
+                                "Deleting from "
+                                + path
+                                + " : "
+                                + str(int((sofar / deleted) * 100))
+                                + "%",
+                                end="\r",
+                            )
+                    sofar += 1
+                else :
+                    for crptd in cor:
+                        if( (".wav" in file) and (crptd in file)):
+                            remove(join(directory, path, file))
+                            print(
+                                "Deleting from "
+                                + path
+                                + " : "
+                                + str(int((sofar / deleted) * 100))
+                                + "%",
+                                end="\r",
+                            )
+                            sofar += 1
+                            break
         filesCount -= deleted
         print()
         print("=====================")
@@ -279,8 +282,7 @@ def delete():
 def generate_csv(filesCount):
     filesSoFar = 1
     data_dir = directory
-    sources = ["test", "dev"]
-    #, "train"]
+    sources = ["test", "dev", "train"]
     for source_name in sources:
         csv = []
         dir_path=os.path.join(data_dir, source_name)
