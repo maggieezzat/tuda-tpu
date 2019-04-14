@@ -222,8 +222,8 @@ def run_deep_speech(_):
     num_classes = len(train_speech_dataset.speech_labels)
 
     # Use distribution strategy for multi-gpu training
-    #num_gpus = flags_core.get_num_gpus(flags_obj)
-    #distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
+    num_gpus = flags_core.get_num_gpus(flags_obj)
+    distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
       flags_obj.tpu,
