@@ -30,11 +30,8 @@ import collections
 import re
 import num2words
 
-directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
-
-# "C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
-#
-#
+directory = "E:/TUDA/german-speechdata-package-v2"
+#directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
 
 # =============================== Vocab ===================================
 
@@ -214,7 +211,6 @@ def clean_sentence(sentence):
 
 
 def delete():
-    filesCount = 0
     txtCor = os.path.join(os.path.dirname(__file__), "corrupted.txt")
     with open(txtCor) as corfile:
         content = corfile.readlines()
@@ -230,79 +226,42 @@ def delete():
             for f in listdir(join(directory, path))
             if isfile(join(directory, path, f))
         ]
-        deleted = 0
+        length=len(files)
+        processed = 0
+    
         for file in files:
-            if ".xml" in file:
-                filesCount += 1
-            if os.path.getsize(join(directory, path, file)) <= 0:
-                deleted += 1
-                continue
-            if ".wav" in file:
-                data, _ = soundfile.read(join(directory, path, file))
-                if len(data) <= 0:
-                    deleted += 1
-                elif (
-                    ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file)
-                ):
-                    deleted += 1
-                else:
-                    for crptd in cor:
-                        if (".wav" in file) and (crptd in file):
-                            deleted += 1
-                            break
-        sofar = 1
-        for file in files:
-            if ".wav" in file:
+            processed+=1
+            print("Deleting from " + path + " " + str(processed) + "/" + str(length), end="\r")
+            if ".wav" in file: 
                 if os.path.getsize(join(directory, path, file)) <= 0:
                     remove(join(directory, path, file))
                     continue
-
                 data, _ = soundfile.read(join(directory, path, file))
                 if len(data) <= 0:
                     remove(join(directory, path, file))
-                    print("Deleting from " + path, end="\r")
-                    sofar += 1
                 elif (
-                    ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file)
-                ):
+                    ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file)):
                     remove(join(directory, path, file))
-                    print(
-                        "Deleting from "
-                        + path
-                        + " : "
-                        + str(int((sofar / deleted) * 100))
-                        + "%",
-                        end="\r",
-                    )
-                    sofar += 1
                 else:
                     for crptd in cor:
                         if (".wav" in file) and (crptd in file):
                             remove(join(directory, path, file))
-                            print(
-                                "Deleting from "
-                                + path
-                                + " : "
-                                + str(int((sofar / deleted) * 100))
-                                + "%",
-                                end="\r",
-                            )
-                            sofar += 1
                             break
-        filesCount -= deleted
         print()
+        print("Done deleting from " + path + " " + str(length) + "/" + str(length))
         print("=====================")
-    return filesCount
 
-
-def generate_csv(filesCount):
-    filesSoFar = 1
+def generate_csv():
     data_dir = directory
     sources = ["test", "dev", "train"]
     for source_name in sources:
         csv = []
         dir_path = os.path.join(data_dir, source_name)
+        processed = 0
+        length = len(os.listdir(dir_path))
         for file in os.listdir(dir_path):
+            processed+=1
+            print("Processing " + source_name + " " + str(processed) + "/" + str(length), end="\r")
             if file.endswith(".xml"):
                 tree = ET.parse(os.path.join(dir_path, file))
                 recording = tree.getroot()
@@ -311,12 +270,6 @@ def generate_csv(filesCount):
                     continue
                 sent = recording.find("cleaned_sentence")
                 sent = sent.text.lower()
-                # sent = sent.replace("ä","ae")
-                # sent = sent.replace("ö","oe")
-                # sent = sent.replace("ü","ue")
-                # sent = sent.replace("ß","ss")
-                # transcript = unicodedata.normalize("NFKD", sent).encode(
-                #   "utf8", "ignore").decode("utf8", "ignore").strip().lower()
                 transcript = clean_sentence(sent)
                 file_xml, _ = file.split(".", 1)
                 found = 0
@@ -328,25 +281,19 @@ def generate_csv(filesCount):
                         found += 1
                     if found >= 2:
                         break
-                # print(source_name + " : Proccessed : " +  file, end="\r")
-                print(
-                    "Processing : " + str(int((filesSoFar / filesCount) * 100)) + "%",
-                    end="\r",
-                )
-                filesSoFar += 1
+
         print()
         df = pandas.DataFrame(
             data=csv, columns=["wav_filename", "wav_filesize", "transcript"]
         )
         output_file = os.path.join(data_dir, source_name + ".csv")
         df.to_csv(output_file, index=False, sep="\t")
-
-        tf.logging.info("Successfully generated csv file {}".format(output_file))
+        print("Successfully generated csv file {}".format(output_file))
 
 
 def main(_):
-    fileC = delete()
-    generate_csv(fileC)
+    #delete()
+    generate_csv()
 
 
 if __name__ == "__main__":
