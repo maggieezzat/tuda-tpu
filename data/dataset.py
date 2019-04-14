@@ -204,8 +204,8 @@ def batch_wise_dataset_shuffle(entries, epoch_index, sortagrad, batch_size):
     return shuffled_entries
 
 
-#def input_fn(batch_size, deep_speech_dataset, repeat=1):
-def input_fn(params):
+def input_fn(batch_size, deep_speech_dataset, repeat=1):
+#def input_fn(params):
     """Input function for model training and evaluation.
 
   Args:
@@ -216,9 +216,9 @@ def input_fn(params):
   Returns:
     a tf.data.Dataset object for model to consume.
   """
-    deep_speech_dataset=params['deep_speech_dataset']
-    batch_size=params['batch_size']
-    repeat=params['repeat']
+    #deep_speech_dataset=params['deep_speech_dataset']
+    #batch_size=params['batch_size']
+    #repeat=params['repeat']
     # Dataset properties
     data_entries = deep_speech_dataset.entries
     num_feature_bins = deep_speech_dataset.num_feature_bins

@@ -248,7 +248,11 @@ def run_deep_speech(_):
       train_batch_size=flags_obj.batch_size,
       eval_batch_size=flags_obj.batch_size,
       predict_batch_size=flags_obj.batch_size,
-      params={"num_classes": num_classes},
+      params={"num_classes": num_classes,
+            'train_speech_dataset': train_speech_dataset,
+            'eval_speech_dataset': eval_speech_dataset,
+            'batch_size': per_device_batch_size,
+        },
       config=run_config)
 
     # Benchmark logging
@@ -276,23 +280,19 @@ def run_deep_speech(_):
         flags_obj.batch_size, num_gpus
     )
 
-    def input_fn_train():
-        params={
-            'deep_speech_dataset': train_speech_dataset,
-            'batch_size': per_device_batch_size,
-            'repeat': 1
-        }
-        return dataset.input_fn(params)
-        #return dataset.input_fn(per_device_batch_size, train_speech_dataset)
+    def input_fn_train(params):
+        train_speech_dataset=params['train_speech_dataset']
+        per_device_batch_size=['per_device_batch_size']
 
-    def input_fn_eval():
-        params={
-            'deep_speech_dataset': eval_speech_dataset,
-            'batch_size': per_device_batch_size,
-            'repeat': 1
-        }
-        return dataset.input_fn(params)
-        #return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
+        #return dataset.input_fn(params)
+        return dataset.input_fn(per_device_batch_size, train_speech_dataset)
+
+    def input_fn_eval(params):
+        eval_speech_dataset=params['eval_speech_dataset']
+        per_device_batch_size=['per_device_batch_size']
+        
+        #return dataset.input_fn(params)
+        return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
     for cycle_index in range(total_training_cycle):
