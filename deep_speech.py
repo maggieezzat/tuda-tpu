@@ -277,10 +277,22 @@ def run_deep_speech(_):
     )
 
     def input_fn_train():
-        return dataset.input_fn(per_device_batch_size, train_speech_dataset)
+        params={
+            'deep_speech_dataset': train_speech_dataset
+            'batch_size': per_device_batch_size
+            'repeat': 1
+        }
+        return dataset.input_fn(params)
+        #return dataset.input_fn(per_device_batch_size, train_speech_dataset)
 
     def input_fn_eval():
-        return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
+        params={
+            'deep_speech_dataset': eval_speech_dataset
+            'batch_size': per_device_batch_size
+            'repeat': 1
+        }
+        return dataset.input_fn(params)
+        #return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
     for cycle_index in range(total_training_cycle):
