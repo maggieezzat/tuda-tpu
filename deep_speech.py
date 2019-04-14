@@ -303,6 +303,7 @@ def run_deep_speech(_):
 
 
 def define_deep_speech_flags():
+    directory = "E:/TUDA/german-speechdata-package-v2"
     """Add flags for run_deep_speech."""
     # Add common flags
     flags_core.define_base(
@@ -320,10 +321,10 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir="E:/TUDA/german-speechdata-package-v2/deep_speech_model/",
-        export_dir="E:/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
+        model_dir=os.path.join(directory, "/deep_speech_model/"),
+        export_dir=os.path.join(directory, "/deep_speech_saved_model/"),
         train_epochs=1,
-        #train_epochs=10,
+        # train_epochs=10,
         batch_size=128,
         hooks="",
     )
@@ -335,13 +336,13 @@ def define_deep_speech_flags():
 
     flags.DEFINE_string(
         name="train_data_dir",
-        default="E:/TUDA/german-speechdata-package-v2/test.csv",
+        default=os.path.join(directory, "/test.csv"),
         help=flags_core.help_wrap("The csv file path of train dataset."),
     )
 
     flags.DEFINE_string(
         name="eval_data_dir",
-        default="E:/TUDA/german-speechdata-package-v2/dev.csv",
+        default=os.path.join(directory, "/dev.csv"),
         help=flags_core.help_wrap("The csv file path of evaluation dataset."),
     )
 
@@ -380,14 +381,14 @@ def define_deep_speech_flags():
     flags.DEFINE_integer(
         name="rnn_hidden_size",
         default=50,
-        #default=800,
+        # default=800,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
         default=2,
-        #default=5,
+        # default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 

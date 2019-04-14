@@ -6,4 +6,3 @@ for i in range(len(content)):
     cor.append(content[i][37:57])
 print(cor)
 
-

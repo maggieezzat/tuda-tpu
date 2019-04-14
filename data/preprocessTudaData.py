@@ -237,11 +237,13 @@ def delete():
             if os.path.getsize(join(directory, path, file)) <= 0:
                 deleted += 1
                 continue
-            if(".wav" in file):
+            if ".wav" in file:
                 data, _ = soundfile.read(join(directory, path, file))
                 if len(data) <= 0:
                     deleted += 1
-                elif ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file):
+                elif (
+                    ("Kinect-Beam" in file) or ("Yamaha" in file) or ("Samson" in file)
+                ):
                     deleted += 1
                 else:
                     for crptd in cor:
