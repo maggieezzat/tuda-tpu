@@ -278,8 +278,8 @@ def run_deep_speech(_):
 
     def input_fn_train():
         params={
-            'deep_speech_dataset': train_speech_dataset
-            'batch_size': per_device_batch_size
+            'deep_speech_dataset': train_speech_dataset,
+            'batch_size': per_device_batch_size,
             'repeat': 1
         }
         return dataset.input_fn(params)
@@ -287,8 +287,8 @@ def run_deep_speech(_):
 
     def input_fn_eval():
         params={
-            'deep_speech_dataset': eval_speech_dataset
-            'batch_size': per_device_batch_size
+            'deep_speech_dataset': eval_speech_dataset,
+            'batch_size': per_device_batch_size,
             'repeat': 1
         }
         return dataset.input_fn(params)
