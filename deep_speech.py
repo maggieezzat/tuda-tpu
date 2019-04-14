@@ -236,7 +236,7 @@ def run_deep_speech(_):
       model_dir=flags_obj.model_dir,
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
-      tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations),
+      tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations, , flags_obj.num_shards),
     )
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
@@ -385,7 +385,7 @@ def define_deep_speech_flags():
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
-    tf.flags.DEFINE_integer("num_shards", 4, "Number of shards (TPU chips).")
+    tf.flags.DEFINE_integer("num_shards", 1, "Number of shards (TPU chips).")
 
 
     # Deep speech flags
