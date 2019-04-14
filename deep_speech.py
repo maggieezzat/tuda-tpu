@@ -377,7 +377,7 @@ def define_deep_speech_flags():
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
-    tf.flags.DEFINE_integer("num_shards", 1, "Number of shards (TPU chips).")
+    tf.flags.DEFINE_integer("num_shards", 4, "Number of shards (TPU chips).")
 
 
     # Deep speech flags
