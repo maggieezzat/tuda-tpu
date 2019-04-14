@@ -226,17 +226,17 @@ def run_deep_speech(_):
     #distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
-      FLAGS.tpu,
-      zone=FLAGS.tpu_zone,
-      project=FLAGS.gcp_project
+      flags_obj.tpu,
+      zone=flags_obj.tpu_zone,
+      project=flags_obj.gcp_project
     )
 
     run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
-      model_dir=FLAGS.model_dir,
+      model_dir=flags_obj.model_dir,
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
-      tpu_config=tf.contrib.tpu.TPUConfig(FLAGS.iterations),
+      tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations),
     )
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
@@ -251,7 +251,10 @@ def run_deep_speech(_):
     estimator = tf.contrib.tpu.TPUEstimator(
       model_fn=model_fn,
       model_dir=flags_obj.model_dir,
-      use_tpu=FLAGS.use_tpu,
+      use_tpu=flags_obj.use_tpu,
+      train_batch_size=flags_obj.batch_size,
+      eval_batch_size=flags_obj.batch_size,
+      predict_batch_size=flags_obj.batch_size,
       params={"num_classes": num_classes},
       config=run_config)
 
