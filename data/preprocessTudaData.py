@@ -223,8 +223,7 @@ def delete():
     for jk in range(len(content)):
         cor.append(content[jk][37:57])
 
-    paths = ["test", "dev"]
-    # , "train"]
+    paths = ["test", "dev", "train"]
     for path in paths:
         files = [
             f
@@ -297,8 +296,7 @@ def delete():
 def generate_csv(filesCount):
     filesSoFar = 1
     data_dir = directory
-    sources = ["test", "dev"]
-    # , "train"]
+    sources = ["test", "dev", "train"]
     for source_name in sources:
         csv = []
         dir_path = os.path.join(data_dir, source_name)
