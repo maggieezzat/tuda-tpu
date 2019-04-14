@@ -236,7 +236,7 @@ def run_deep_speech(_):
       model_dir=flags_obj.model_dir,
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
-      tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations, , flags_obj.num_shards),
+      tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations,flags_obj.num_shards),
     )
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
