@@ -241,13 +241,6 @@ def run_deep_speech(_):
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
 
-    """"estimator = tf.estimator.Estimator(
-        model_fn=model_fn,
-        model_dir=flags_obj.model_dir,
-        config=run_config,
-        params={"num_classes": num_classes},
-    )""""
-
     estimator = tf.contrib.tpu.TPUEstimator(
       model_fn=model_fn,
       model_dir=flags_obj.model_dir,
