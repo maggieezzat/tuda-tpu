@@ -296,7 +296,7 @@ def run_deep_speech(_):
             flags_obj.batch_size,
         )
 
-        estimator.train(input_fn=input_fn_train, hooks=train_hooks)
+        estimator.train(input_fn=input_fn_train, hooks=train_hooks, max_steps=FLAGS.train_steps)
 
         # Evaluation
         tf.logging.info("Starting to evaluate...")
@@ -368,6 +368,10 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
+    tf.flags.DEFINE_integer("train_steps", 500, "Total number of training steps.")
+    tf.flags.DEFINE_integer("eval_steps", 500,
+                        "Total number of evaluation steps. If `0`, evaluation "
+                        "after training is skipped.")
 
 
     # Deep speech flags
