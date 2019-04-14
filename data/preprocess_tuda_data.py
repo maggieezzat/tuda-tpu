@@ -390,6 +390,7 @@ def generate_csv():
         df.to_csv(output_file, index=False, sep="\t")
         
         print("Successfully generated csv file {}.csv".format(path))
+        print("=====================")
 
 
 def main(_):
