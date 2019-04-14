@@ -236,6 +236,9 @@ def run_deep_speech(_):
       model_dir=flags_obj.model_dir,
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
+      train_batch_size=flags_obj.batch_size,
+      eval_batch_size=flags_obj.batch_size,
+      #predict_batch_size=flags_obj.batch_size,
       tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations,flags_obj.num_shards),
     )
 
@@ -247,7 +250,7 @@ def run_deep_speech(_):
       use_tpu=flags_obj.use_tpu,
       train_batch_size=flags_obj.batch_size,
       eval_batch_size=flags_obj.batch_size,
-      predict_batch_size=flags_obj.batch_size,
+      #predict_batch_size=flags_obj.batch_size,
       params={"num_classes": num_classes,
             #'train_speech_dataset': train_speech_dataset,
             #'eval_speech_dataset': eval_speech_dataset,
@@ -279,13 +282,18 @@ def run_deep_speech(_):
     per_device_batch_size = distribution_utils.per_device_batch_size(
         flags_obj.batch_size, num_gpus
     )
-    print("\n\n\n\n\n\n\n" +str(per_device_batch_size)+ "\n\n\n\n\n\n\n")
 
     def input_fn_train(params):
         return dataset.input_fn(per_device_batch_size, train_speech_dataset)
 
     def input_fn_eval(params):
         return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
+
+    #def input_fn_predict(features, batch_size):
+        #dataset = tf.data.Dataset.from_tensor_slices(features)
+        #dataset = dataset.batch(batch_size)
+        #return dataset
+    #    return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
     for cycle_index in range(total_training_cycle):
