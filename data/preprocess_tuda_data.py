@@ -23,7 +23,6 @@ from absl import app as absl_app
 from absl import flags as absl_flags
 import pandas
 from six.moves import urllib
-import wget
 import tensorflow as tf
 
 import string
