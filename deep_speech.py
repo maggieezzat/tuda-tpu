@@ -171,7 +171,8 @@ def model_fn(features, labels, mode, params):
             "probabilities": tf.nn.softmax(logits),
             "logits": logits,
         }
-        return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
+        return tf.contrib.tpu.TPUEstimatorSpec(mode, predictions=predictions)
+        
 
     # In training mode.
     logits = model(features, training=True)
@@ -183,13 +184,15 @@ def model_fn(features, labels, mode, params):
     loss = tf.reduce_mean(ctc_loss(label_length, ctc_input_length, labels, probs))
 
     optimizer = tf.train.AdamOptimizer(learning_rate=flags_obj.learning_rate)
+    if FLAGS.use_tpu:
+      optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
     global_step = tf.train.get_or_create_global_step()
     minimize_op = optimizer.minimize(loss, global_step=global_step)
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     # Create the train_op that groups both minimize_ops and update_ops
     train_op = tf.group(minimize_op, update_ops)
 
-    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+    return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
 
 def generate_dataset(data_dir):
@@ -219,16 +222,38 @@ def run_deep_speech(_):
     num_classes = len(train_speech_dataset.speech_labels)
 
     # Use distribution strategy for multi-gpu training
-    num_gpus = flags_core.get_num_gpus(flags_obj)
-    distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
-    run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
+    #num_gpus = flags_core.get_num_gpus(flags_obj)
+    #distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
 
-    estimator = tf.estimator.Estimator(
+    tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
+      FLAGS.tpu,
+      zone=FLAGS.tpu_zone,
+      project=FLAGS.gcp_project
+    )
+
+    run_config = tf.contrib.tpu.RunConfig(
+      cluster=tpu_cluster_resolver,
+      model_dir=FLAGS.model_dir,
+      session_config=tf.ConfigProto(
+          allow_soft_placement=True, log_device_placement=True),
+      tpu_config=tf.contrib.tpu.TPUConfig(FLAGS.iterations),
+    )
+
+    #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
+
+    """"estimator = tf.estimator.Estimator(
         model_fn=model_fn,
         model_dir=flags_obj.model_dir,
         config=run_config,
         params={"num_classes": num_classes},
-    )
+    )""""
+
+    estimator = tf.contrib.tpu.TPUEstimator(
+      model_fn=model_fn,
+      model_dir=flags_obj.model_dir,
+      use_tpu=FLAGS.use_tpu,
+      params={"num_classes": num_classes},
+      config=run_config)
 
     # Benchmark logging
     run_params = {
@@ -303,12 +328,14 @@ def run_deep_speech(_):
 
 
 def define_deep_speech_flags():
-    directory = "E:/TUDA/german-speechdata-package-v2"
+    directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
     """Add flags for run_deep_speech."""
+    
     # Add common flags
     flags_core.define_base(
-        data_dir=False  # we use train_data_dir and eval_data_dir instead
-    )
+            data_dir=False  # we use train_data_dir and eval_data_dir instead
+        )
+
     flags_core.define_performance(
         num_parallel_calls=False,
         inter_op=False,
@@ -323,11 +350,34 @@ def define_deep_speech_flags():
     flags_core.set_defaults(
         model_dir=os.path.join(directory, "/deep_speech_model/"),
         export_dir=os.path.join(directory, "/deep_speech_saved_model/"),
-        train_epochs=1,
-        # train_epochs=10,
+        #train_epochs=1,
+        train_epochs=10,
         batch_size=128,
         hooks="",
     )
+    
+    tf.flags.DEFINE_string(
+        "tpu", default=None,
+        help="The Cloud TPU to use for training. This should be either the name "
+        "used when creating the Cloud TPU, or a grpc://ip.address.of.tpu:8470 "
+        "url.")
+    
+    tf.flags.DEFINE_string(
+        "tpu_zone", default="us-central1-f",
+        help="[Optional] GCE zone where the Cloud TPU is located in. If not "
+        "specified, we will attempt to automatically detect the GCE project from "
+        "metadata.")
+    tf.flags.DEFINE_string(
+        "gcp_project", default=None,
+        help="[Optional] Project name for the Cloud TPU-enabled project. If not "
+        "specified, we will attempt to automatically detect the GCE project from "
+        "metadata.")
+
+    tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
+
+    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
+
+
 
     # Deep speech flags
     flags.DEFINE_integer(
@@ -336,13 +386,13 @@ def define_deep_speech_flags():
 
     flags.DEFINE_string(
         name="train_data_dir",
-        default=os.path.join(directory, "/test.csv"),
+        default=os.path.join(directory, "/train.csv"),
         help=flags_core.help_wrap("The csv file path of train dataset."),
     )
 
     flags.DEFINE_string(
         name="eval_data_dir",
-        default=os.path.join(directory, "/dev.csv"),
+        default=os.path.join(directory, "/test.csv"),
         help=flags_core.help_wrap("The csv file path of evaluation dataset."),
     )
 
@@ -380,15 +430,15 @@ def define_deep_speech_flags():
     # RNN related flags
     flags.DEFINE_integer(
         name="rnn_hidden_size",
-        default=50,
-        # default=800,
+        #default=50,
+        default=800,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        default=2,
-        # default=5,
+        #default=2,
+        default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 

@@ -30,7 +30,7 @@ import collections
 import re
 import num2words
 
-directory = "E:/TUDA/german-speechdata-package-v2"
+directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
 
 # "C:/Users/MaggieEzzat/Desktop/german-speechdata-package-v2.tar/german-speechdata-package-v2"
 #
