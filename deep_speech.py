@@ -240,9 +240,7 @@ def run_deep_speech(_):
     )
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
-    per_device_batch_size = distribution_utils.per_device_batch_size(
-        flags_obj.batch_size, num_gpus
-    )    
+
     estimator = tf.contrib.tpu.TPUEstimator(
       model_fn=model_fn,
       model_dir=flags_obj.model_dir,
@@ -253,7 +251,7 @@ def run_deep_speech(_):
       params={"num_classes": num_classes,
             'train_speech_dataset': train_speech_dataset,
             'eval_speech_dataset': eval_speech_dataset,
-            'batch_size': per_device_batch_size,
+            #'batch_size': per_device_batch_size,
         },
       config=run_config)
 
@@ -278,7 +276,9 @@ def run_deep_speech(_):
         flags_obj.hooks, model_dir=flags_obj.model_dir, batch_size=flags_obj.batch_size
     )
 
-
+    per_device_batch_size = distribution_utils.per_device_batch_size(
+        flags_obj.batch_size, num_gpus
+    )
 
     def input_fn_train(params):
         train_speech_dataset=params['train_speech_dataset']
