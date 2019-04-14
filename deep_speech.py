@@ -282,14 +282,14 @@ def run_deep_speech(_):
 
     def input_fn_train(params):
         train_speech_dataset=params['train_speech_dataset']
-        per_device_batch_size=params['per_device_batch_size']
+        per_device_batch_size=params['batch_size']
 
         #return dataset.input_fn(params)
         return dataset.input_fn(per_device_batch_size, train_speech_dataset)
 
     def input_fn_eval(params):
         eval_speech_dataset=params['eval_speech_dataset']
-        per_device_batch_size=params['per_device_batch_size']
+        per_device_batch_size=params['batch_size']
         
         #return dataset.input_fn(params)
         return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
