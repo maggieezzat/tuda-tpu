@@ -385,6 +385,8 @@ def define_deep_speech_flags():
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
+    tf.flags.DEFINE_integer("num_shards", 4, "Number of shards (TPU chips).")
+
 
     # Deep speech flags
     flags.DEFINE_integer(
@@ -475,6 +477,7 @@ def define_deep_speech_flags():
         default=5e-4,
         help=flags_core.help_wrap("The initial learning rate."),
     )
+    
 
     # Evaluation metrics threshold
     flags.DEFINE_float(
