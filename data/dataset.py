@@ -69,6 +69,7 @@ class DatasetConfig(object):
     """
 
         self.audio_config = audio_config
+        print(data_path)
         assert tf.gfile.Exists(data_path)
         assert tf.gfile.Exists(vocab_file_path)
         self.data_path = data_path
