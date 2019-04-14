@@ -344,8 +344,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir=os.path.join(directory, "/deep_speech_model/"),
-        export_dir=os.path.join(directory, "/deep_speech_saved_model/"),
+        model_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_model/",
+        export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
         #train_epochs=1,
         train_epochs=10,
         batch_size=128,
@@ -377,13 +377,13 @@ def define_deep_speech_flags():
 
     flags.DEFINE_string(
         name="train_data_dir",
-        default=os.path.join(directory, "/train.csv"),
+        default= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/train.csv",
         help=flags_core.help_wrap("The csv file path of train dataset."),
     )
 
     flags.DEFINE_string(
         name="eval_data_dir",
-        default=os.path.join(directory, "/test.csv"),
+        default= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/test.csv",
         help=flags_core.help_wrap("The csv file path of evaluation dataset."),
     )
 
