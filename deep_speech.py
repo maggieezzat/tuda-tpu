@@ -363,11 +363,6 @@ def define_deep_speech_flags():
         help="[Optional] GCE zone where the Cloud TPU is located in. If not "
         "specified, we will attempt to automatically detect the GCE project from "
         "metadata.")
-    tf.flags.DEFINE_string(
-        "gcp_project", default=None,
-        help="[Optional] Project name for the Cloud TPU-enabled project. If not "
-        "specified, we will attempt to automatically detect the GCE project from "
-        "metadata.")
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
