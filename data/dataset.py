@@ -69,7 +69,6 @@ class DatasetConfig(object):
     """
 
         self.audio_config = audio_config
-        print(data_path)
         assert tf.gfile.Exists(data_path)
         assert tf.gfile.Exists(vocab_file_path)
         self.data_path = data_path
@@ -260,11 +259,13 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         ),
         output_shapes=(
             {
-                "features": tf.TensorShape([None, num_feature_bins, 1]),
+                #"features": tf.TensorShape([None, num_feature_bins, 1]),
+                "features": tf.TensorShape([1, num_feature_bins, 1]),
                 "input_length": tf.TensorShape([1]),
                 "label_length": tf.TensorShape([1]),
             },
-            tf.TensorShape([None]),
+            #tf.TensorShape([None]),
+            tf.TensorShape([1]),
         ),
     )
 
@@ -276,11 +277,13 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         batch_size=batch_size,
         padded_shapes=(
             {
-                "features": tf.TensorShape([None, num_feature_bins, 1]),
+                #"features": tf.TensorShape([None, num_feature_bins, 1]),
+                "features": tf.TensorShape([1, num_feature_bins, 1]),
                 "input_length": tf.TensorShape([1]),
                 "label_length": tf.TensorShape([1]),
             },
-            tf.TensorShape([None]),
+            #tf.TensorShape([None]),
+            tf.TensorShape([1]),
         ),
     )
 
