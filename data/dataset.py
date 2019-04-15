@@ -274,22 +274,6 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         ),
         output_shapes=(
             {
-                "features": tf.TensorShape([100, num_feature_bins, 1]),
-                "input_length": tf.TensorShape([1]),
-                "label_length": tf.TensorShape([1]),
-            },
-            tf.TensorShape([100]),
-        ),
-    )
-
-    # Repeat and batch the dataset
-    dataset = dataset.repeat(repeat)
-
-    # Padding the features to its max length dimensions.
-    dataset = dataset.padded_batch(
-        batch_size=tf.cast(batch_size, tf.int64),
-        padded_shapes=(
-            {
                 "features": tf.TensorShape([None, num_feature_bins, 1]),
                 "input_length": tf.TensorShape([1]),
                 "label_length": tf.TensorShape([1]),
@@ -298,6 +282,25 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         ),
     )
 
+    # Repeat and batch the dataset
+    dataset = dataset.repeat(repeat)
+
+    dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
+
+    # Padding the features to its max length dimensions.
+    """dataset = dataset.padded_batch(
+        batch_size=batch_size
+        padded_shapes=(
+            {
+                "features": tf.TensorShape([None, num_feature_bins, 1]),
+                "input_length": tf.TensorShape([1]),
+                "label_length": tf.TensorShape([1]),
+            },
+            tf.TensorShape([None]),
+        ),
+    )"""
+
+    #dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
     #dataset = dataset.batch(batch_size, drop_remainder=True)
 
     # Prefetch to improve speed of input pipeline.

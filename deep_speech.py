@@ -280,21 +280,6 @@ def run_deep_speech(_):
 
     def input_fn_train(params):
         ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print (ds.output_shapes)
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
-        print("************************************")
         return ds
 
     def input_fn_eval(params):
@@ -348,7 +333,7 @@ def run_deep_speech(_):
 
 
 def define_deep_speech_flags():
-    directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
+    
     """Add flags for run_deep_speech."""
     
     # Add common flags
@@ -368,9 +353,10 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_model/",
-        export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
-        #train_epochs=1,
+        #model_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_model/",
+        #export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
+        model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model/",
         train_epochs=10,
         batch_size=128,
         hooks="",
@@ -407,13 +393,13 @@ def define_deep_speech_flags():
 
     flags.DEFINE_string(
         name="train_data_dir",
-        default= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/train.csv",
+        default= "gs://deep_speech_bucket/german-speechdata-package-v2/train.csv",
         help=flags_core.help_wrap("The csv file path of train dataset."),
     )
 
     flags.DEFINE_string(
         name="eval_data_dir",
-        default= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/test.csv",
+        default= "gs://deep_speech_bucket/german-speechdata-package-v2/test.csv",
         help=flags_core.help_wrap("The csv file path of evaluation dataset."),
     )
 
