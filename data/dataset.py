@@ -274,11 +274,11 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         ),
         output_shapes=(
             {
-                "features": tf.TensorShape([batch_size, num_feature_bins, 1]),
+                "features": tf.TensorShape([100, num_feature_bins, 1]),
                 "input_length": tf.TensorShape([1]),
                 "label_length": tf.TensorShape([1]),
             },
-            tf.TensorShape([batch_size]),
+            tf.TensorShape([100]),
         ),
     )
 
