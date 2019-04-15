@@ -367,16 +367,12 @@ def define_deep_speech_flags():
     flags_core.define_benchmark()
     flags.adopt_module_key_flags(flags_core)
 
-    tf.flags.DEFINE_integer(
-        "batch_size", default=128, help="The batch size"
-    )
-
     flags_core.set_defaults(
         model_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_model/",
         export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
         #train_epochs=1,
         train_epochs=10,
-        batch_size=128,
+        batch_size=tf.Variable(128,tf.int64),
         hooks="",
     )
     
