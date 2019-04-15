@@ -234,10 +234,11 @@ def run_deep_speech(_):
     run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
       model_dir=flags_obj.model_dir,
-      train_batch_size=flags_obj.batch_size,
-      eval_batch_size=flags_obj.batch_size,
+      
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
+      train_batch_size=flags_obj.batch_size,
+      eval_batch_size=flags_obj.batch_size,
       
       tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations,flags_obj.num_shards),
     )
@@ -280,9 +281,13 @@ def run_deep_speech(_):
     #)
 
     def input_fn_train(params):
+<<<<<<< HEAD
+        return dataset.input_fn(params['batch_size'], train_speech_dataset)
+=======
         ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
         print (ds.output_shapes)
         return ds
+>>>>>>> 13057b731fff6e3968a9e9abae8a917106788b9e
 
     def input_fn_eval(params):
         return dataset.input_fn(params['batch_size'], eval_speech_dataset)
