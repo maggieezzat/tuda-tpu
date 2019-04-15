@@ -298,7 +298,7 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         ),
     )
 
-    dataset = dataset.batch(batch_size, drop_remainder=True)
+    #dataset = dataset.batch(batch_size, drop_remainder=True)
 
     # Prefetch to improve speed of input pipeline.
     dataset = dataset.prefetch(buffer_size=tf.contrib.data.AUTOTUNE)
