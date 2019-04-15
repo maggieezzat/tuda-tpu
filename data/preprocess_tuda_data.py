@@ -395,7 +395,7 @@ def generate_csv():
 
 def main(_):
 
-    download_and_extract(download_dir,tuda_url)
+    #download_and_extract(download_dir,tuda_url)
 
     if tf.gfile.Exists(os.path.join(os.path.dirname(__file__), "corrupted2.txt")):
         print("corrupted list 2 already found")
