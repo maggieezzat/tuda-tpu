@@ -225,6 +225,21 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
     feature_normalize = deep_speech_dataset.config.audio_config.normalize
     text_featurizer = deep_speech_dataset.text_featurizer
 
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print (batch_size)
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
+    print("************************************")
     def _gen_data():
         """Dataset generator function."""
         for audio_file, _, transcript in data_entries:
