@@ -287,7 +287,7 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
 
     # Padding the features to its max length dimensions.
     dataset = dataset.padded_batch(
-        batch_size=tf.int64(batch_size),
+        batch_size=tf.cast(batch_size, tf.int64),
         padded_shapes=(
             {
                 "features": tf.TensorShape([None, num_feature_bins, 1]),
