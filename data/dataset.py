@@ -274,11 +274,11 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         ),
         output_shapes=(
             {
-                "features": tf.TensorShape([batch_size, None, num_feature_bins, 1]),
-                "input_length": tf.TensorShape([batch_size, 1]),
-                "label_length": tf.TensorShape([batch_size, 1]),
+                "features": tf.TensorShape([ num_feature_bins, 1]),
+                "input_length": tf.TensorShape([1]),
+                "label_length": tf.TensorShape([1]),
             },
-            tf.TensorShape([batch_size]),
+            tf.TensorShape([]),
         ),
     )
 
@@ -290,11 +290,11 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
         batch_size=batch_size,
         padded_shapes=(
             {
-                "features": tf.TensorShape([batch_size, None, num_feature_bins, 1]),
-                "input_length": tf.TensorShape([batch_size, 1]),
-                "label_length": tf.TensorShape([batch_size, 1]),
+                "features": tf.TensorShape([ num_feature_bins, 1]),
+                "input_length": tf.TensorShape([1]),
+                "label_length": tf.TensorShape([1]),
             },
-            tf.TensorShape([batch_size, None]),
+            tf.TensorShape([]),
         ),
     )
 
