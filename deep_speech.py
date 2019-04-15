@@ -368,7 +368,7 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     tf.flags.DEFINE_integer(
-        "batch_size", default=128, "The batch size"
+        "batch_size", default=128, help="The batch size"
     )
 
     flags_core.set_defaults(
