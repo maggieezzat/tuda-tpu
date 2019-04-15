@@ -374,7 +374,7 @@ def define_deep_speech_flags():
         "specified, we will attempt to automatically detect the GCE project from "
         "metadata.")
 
-    tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
+    tf.flags.DEFINE_bool("use_tpu", False, "Use TPUs rather than plain CPUs")
 
     tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
