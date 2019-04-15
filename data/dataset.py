@@ -25,7 +25,7 @@ import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import soundfile
 import tensorflow as tf
-import datasets
+from data.datasets import StreamingFilesDataset as sfd
 
 # pylint: enable=g-bad-import-order
 
