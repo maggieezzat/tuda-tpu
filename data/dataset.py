@@ -272,14 +272,14 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
             },
             tf.int32,
         ),
-        #output_shapes=(
-        #    {
-        #        "features": tf.TensorShape([None, num_feature_bins, 1]),
-        #        "input_length": tf.TensorShape([1]),
-        #        "label_length": tf.TensorShape([1]),
-        #    },
-        #    tf.TensorShape([None]),
-        #),
+        output_shapes=(
+            {
+                "features": tf.TensorShape([None, num_feature_bins, 1]),
+                "input_length": tf.TensorShape([1]),
+                "label_length": tf.TensorShape([1]),
+            },
+            tf.TensorShape([None]),
+        ),
     )
 
     # Repeat and batch the dataset
