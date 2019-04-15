@@ -25,6 +25,7 @@ import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import soundfile
 import tensorflow as tf
+from tensorflow.python.tpu.datasets import StreamingFilesDataset as sfd 
 
 # pylint: enable=g-bad-import-order
 
@@ -302,8 +303,9 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
 
     #dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
     #dataset = dataset.batch(batch_size, drop_remainder=True)
-
     # Prefetch to improve speed of input pipeline.
     dataset = dataset.prefetch(buffer_size=tf.contrib.data.AUTOTUNE)
+
+    
     return dataset
 
