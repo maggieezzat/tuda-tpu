@@ -305,8 +305,8 @@ def run_deep_speech(_):
             flags_obj.batch_size,
         )
 
-        estimator.train(input_fn=input_fn_train, hooks=train_hooks, max_steps=flags_obj.train_steps)
-
+        estimator.train(input_fn=input_fn_train, max_steps=flags_obj.train_steps)
+        #, hooks=train_hooks
         # Evaluation
         tf.logging.info("Starting to evaluate...")
 
