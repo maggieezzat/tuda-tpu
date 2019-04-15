@@ -234,11 +234,11 @@ def run_deep_speech(_):
     run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
       model_dir=flags_obj.model_dir,
-      session_config=tf.ConfigProto(
-          allow_soft_placement=True, log_device_placement=True),
       train_batch_size=flags_obj.batch_size,
       eval_batch_size=flags_obj.batch_size,
-      #predict_batch_size=flags_obj.batch_size,
+      session_config=tf.ConfigProto(
+          allow_soft_placement=True, log_device_placement=True),
+      
       tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations,flags_obj.num_shards),
     )
 
@@ -250,11 +250,7 @@ def run_deep_speech(_):
       use_tpu=flags_obj.use_tpu,
       train_batch_size=flags_obj.batch_size,
       eval_batch_size=flags_obj.batch_size,
-      #predict_batch_size=flags_obj.batch_size,
       params={"num_classes": num_classes,
-            #'train_speech_dataset': train_speech_dataset,
-            #'eval_speech_dataset': eval_speech_dataset,
-            #'batch_size': per_device_batch_size,
         },
       config=run_config)
 
@@ -279,15 +275,15 @@ def run_deep_speech(_):
         flags_obj.hooks, model_dir=flags_obj.model_dir, batch_size=flags_obj.batch_size
     )
 
-    per_device_batch_size = distribution_utils.per_device_batch_size(
-        flags_obj.batch_size, num_gpus
-    )
+    #per_device_batch_size = distribution_utils.per_device_batch_size(
+    #    flags_obj.batch_size, num_gpus
+    #)
 
     def input_fn_train(params):
-        return dataset.input_fn(per_device_batch_size, train_speech_dataset)
+        return dataset.input_fn(params['batch_size'], train_speech_dataset)
 
     def input_fn_eval(params):
-        return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
+        return dataset.input_fn(params['batch_size'], eval_speech_dataset)
 
     #def input_fn_predict(features, batch_size):
         #dataset = tf.data.Dataset.from_tensor_slices(features)
@@ -382,7 +378,7 @@ def define_deep_speech_flags():
     tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
     tf.flags.DEFINE_integer("train_steps", 500, "Total number of training steps.")
-    tf.flags.DEFINE_integer("eval_steps", 500,
+    tf.flags.DEFINE_integer("eval_steps", 10,
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
