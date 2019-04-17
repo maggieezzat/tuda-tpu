@@ -277,6 +277,7 @@ def run_deep_speech(_):
     per_device_batch_size = distribution_utils.per_device_batch_size(
         flags_obj.batch_size, num_gpus
     )
+    #TODO
 
     def input_fn_train(params):
         ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)

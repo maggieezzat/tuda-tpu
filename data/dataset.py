@@ -108,7 +108,7 @@ def _preprocess_audio(audio_file_path, audio_featurizer, normalize):
         feature = _normalize_audio_feature(feature)
 
     # Adding Channel dimension for conv2D input.
-    feature = np.expand_dims(feature, axis=2)
+    #feature = np.expand_dims(feature, axis=2)
     return feature
 
 
@@ -202,10 +202,9 @@ def batch_wise_dataset_shuffle(entries, epoch_index, sortagrad, batch_size):
         shuffled_entries.extend(entries[max_buckets * batch_size :])
 
     return shuffled_entries
+          
 
-
-def input_fn(batch_size, deep_speech_dataset, repeat=1):
-#def input_fn(params):
+def input_fn(batch_size, input_files, repeat=1):
     """Input function for model training and evaluation.
 
   Args:
@@ -216,75 +215,23 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
   Returns:
     a tf.data.Dataset object for model to consume.
   """
-    #deep_speech_dataset=params['deep_speech_dataset']
-    #batch_size=params['batch_size']
-    #repeat=params['repeat']
-    # Dataset properties
-    data_entries = deep_speech_dataset.entries
-    num_feature_bins = deep_speech_dataset.num_feature_bins
-    audio_featurizer = deep_speech_dataset.audio_featurizer
-    feature_normalize = deep_speech_dataset.config.audio_config.normalize
-    text_featurizer = deep_speech_dataset.text_featurizer
+    features_dict = {
+      "features" :tf.VarLenFeature(tf.float32),
+      "shape":tf.FixedLenFeature([3],tf.int64),
+      "labels":tf.VarLenFeature(tf.int64)
 
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print (batch_size)
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    print("************************************")
-    def _gen_data():
-        """Dataset generator function."""
-        for audio_file, _, transcript in data_entries:
-            features = _preprocess_audio(
-                audio_file, audio_featurizer, feature_normalize
-            )
-            labels = featurizer.compute_label_feature(
-                transcript, text_featurizer.token_to_index
-            )
-            input_length = [features.shape[0]]
-            label_length = [len(labels)]
-            # Yield a tuple of (features, labels) where features is a dict containing
-            # all info about the actual data features.
-            yield (
-                {
-                    "features": features,
-                    "input_length": input_length,
-                    "label_length": label_length,
-                },
-                labels,
-            )
+    }
+  #TODO parallel batches
+    dataset = tf.data.TFRecordDataset(input_files)
+    dataset = dataset.repeat(repeat)
+    dataset = dataset.apply(tf.contrib.data.map_and_batch(
+      lambda record: decode_record(record,features_dict),
+      batch_size = batch_size,
+      num_parallel_batches = 1,
+      drop_remainder = True
 
-    dataset = tf.data.Dataset.from_generator(
-        _gen_data,
-        output_types=(
-            {
-                "features": tf.float32,
-                "input_length": tf.int32,
-                "label_length": tf.int32,
-            },
-            tf.int32,
-        ),
-        output_shapes=(
-            {
-                "features": tf.TensorShape([len(data_entries), num_feature_bins, 1]),
-                "input_length": tf.TensorShape([1]),
-                "label_length": tf.TensorShape([1]),
-            },
-            tf.TensorShape([len(data_entries)]),
-        ),
-    )
-
-    dataset = sfd(dataset)
-
+    ))
+    
     '''
     # Repeat and batch the dataset
     dataset = dataset.repeat(repeat)
@@ -312,3 +259,18 @@ def input_fn(batch_size, deep_speech_dataset, repeat=1):
     
     return dataset
 
+def decode_record(record, name_to_features):
+  """Decodes a record to a TensorFlow example."""
+  example = tf.parse_single_example(record, name_to_features)
+  print(example)
+
+  # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
+  # So cast all int64 to int32.
+  for name in list(example.keys()):
+    print(name)
+    t = example[name]
+    if t.dtype == tf.int64:
+      t = tf.to_int32(t)
+    example[name] = t
+
+  return example
