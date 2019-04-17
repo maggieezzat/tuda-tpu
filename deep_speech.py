@@ -23,7 +23,7 @@ import os
 from absl import app as absl_app
 from absl import flags
 import tensorflow as tf
-
+import test
 # pylint: enable=g-bad-import-order
 
 import data.dataset as dataset
@@ -280,7 +280,8 @@ def run_deep_speech(_):
     #TODO
 
     def input_fn_train(params):
-        ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
+        #ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
+        ds = test.input_fn(per_device_batch_size,'gs://deep_speech_bucket/records_test')
         return ds
 
     def input_fn_eval(params):

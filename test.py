@@ -110,9 +110,6 @@ def create_float_feature(values):
 def decode_record(record, name_to_features):
   """Decodes a record to a TensorFlow example."""
 
-   
-
-
   print(record.value)
   example = tf.parse_single_example(record, name_to_features)
   print(example)
