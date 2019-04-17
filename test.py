@@ -109,6 +109,10 @@ def create_float_feature(values):
 
 def decode_record(record, name_to_features):
   """Decodes a record to a TensorFlow example."""
+
+   
+
+
   print(record.value)
   example = tf.parse_single_example(record, name_to_features)
   print(example)
@@ -164,8 +168,20 @@ def input_fn(batch_size, input_files_csv, repeat=1):
     drop_remainder = True))
     print(dataset)
     return dataset
-    
+def read_tfRecord():
+    record_iterator = tf.python_io.tf_record_iterator(path="E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord")
+    for string_record in record_iterator:
+        example = tf.train.Example()
+        example.ParseFromString(string_record)
+  
+  
+        print(example)
+        break
+  
+  # Exit after 1 iteration as this is purely demonstrative.
+  
 #ds = generate_dataset("E:/TUDA/german-speechdata-package-v2/test.csv")
 #gen_TFRecord(ds)
-input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)
 #input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)
+#input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)
+read_tfRecord()
