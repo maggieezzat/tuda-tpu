@@ -150,10 +150,15 @@ def model_fn(features, labels, mode, params):
     current mode.
   """
     num_classes = params["num_classes"]
-    input_length = features["input_length"]
-    label_length = features["label_length"]
+    #input_length = features["input_length"]
+    #label_length = features["label_length"]
     features = features["features"]
-
+    print("############################")
+    print(features)
+    print("*****************************")
+    print(labels)
+    print("##############################")
+    exit(0)
     # Create DeepSpeech2 model.
     model = deep_speech_model.DeepSpeech2(
         flags_obj.rnn_hidden_layers,
@@ -215,11 +220,14 @@ def run_deep_speech(_):
     tf.set_random_seed(flags_obj.seed)
     # Data preprocessing
     tf.logging.info("Data preprocessing...")
+    '''
     train_speech_dataset = generate_dataset(flags_obj.train_data_dir)
     eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
+    '''
 
     # Number of label classes. Label string is "[a-z]' -"
-    num_classes = len(train_speech_dataset.speech_labels)
+    num_classes = 30
+    #len(train_speech_dataset.speech_labels)
 
     # Use distribution strategy for multi-gpu training
     num_gpus = flags_core.get_num_gpus(flags_obj)
@@ -281,11 +289,11 @@ def run_deep_speech(_):
 
     def input_fn_train(params):
         #ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
-        ds = test.input_fn(per_device_batch_size,'gs://deep_speech_bucket/records_test.csv')
+        ds = test.input_fn(per_device_batch_size,'/content/records_test.csv')
         return ds
 
     def input_fn_eval(params):
-        return dataset.input_fn(params['batch_size'], eval_speech_dataset)
+        return test.input_fn(params['batch_size'], eval_speech_dataset)
 
     #def input_fn_predict(features, batch_size):
         #dataset = tf.data.Dataset.from_tensor_slices(features)
@@ -300,13 +308,14 @@ def run_deep_speech(_):
         )
 
         # Perform batch_wise dataset shuffling
+        '''
         train_speech_dataset.entries = dataset.batch_wise_dataset_shuffle(
             train_speech_dataset.entries,
             cycle_index,
             flags_obj.sortagrad,
             flags_obj.batch_size,
         )
-
+        '''
         estimator.train(input_fn=input_fn_train, hooks=train_hooks, max_steps=flags_obj.train_steps)
 
         # Evaluation
@@ -357,8 +366,8 @@ def define_deep_speech_flags():
     flags_core.set_defaults(
         #model_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_model/",
         #export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
-        model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model/",
+        model_dir= "/content/deep_speech_model/",
+        export_dir= "/content/deep_speech_saved_model/",
         train_epochs=10,
         batch_size=128,
         hooks="",
@@ -395,13 +404,13 @@ def define_deep_speech_flags():
 
     flags.DEFINE_string(
         name="train_data_dir",
-        default= "gs://deep_speech_bucket/german-speechdata-package-v2/train.csv",
+        default= "/content/records_test.csv",
         help=flags_core.help_wrap("The csv file path of train dataset."),
     )
 
     flags.DEFINE_string(
         name="eval_data_dir",
-        default= "gs://deep_speech_bucket/german-speechdata-package-v2/test.csv",
+        default= "/content/records_test.csv",
         help=flags_core.help_wrap("The csv file path of evaluation dataset."),
     )
 

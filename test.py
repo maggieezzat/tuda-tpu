@@ -110,9 +110,9 @@ def create_float_feature(values):
 def decode_record(record, name_to_features):
   """Decodes a record to a TensorFlow example."""
 
-  print(record.value)
+  #print(record.value)
   example = tf.parse_single_example(record, name_to_features)
-  print(example)
+  #print(example)
 
   # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
   # So cast all int64 to int32.
@@ -150,10 +150,12 @@ def input_fn(batch_size, input_files_csv, repeat=1):
     #print(type(test[0]))
     #print(test)
     
-    features_dict = { "features":tf.VarLenFeature(tf.float32), "shape":tf.FixedLenFeature([3],tf.int64), "labels":tf.VarLenFeature(tf.int64)}
+    features_dict = { "features":tf.FixedLenFeature([],tf.float32),
+     "shape":tf.FixedLenFeature([3],tf.int64), 
+     "labels":tf.FixedLenFeature([],tf.int64)}
 
     #TODO parallel batches
-    dataset = tf.data.TFRecordDataset("E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord")
+    dataset = tf.data.TFRecordDataset(input_files)
 
     #"E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord"
 
@@ -163,7 +165,7 @@ def input_fn(batch_size, input_files_csv, repeat=1):
     batch_size = batch_size,
     num_parallel_batches = 1,
     drop_remainder = True))
-    print(dataset)
+    #print(dataset)
     return dataset
 def read_tfRecord():
     record_iterator = tf.python_io.tf_record_iterator(path="E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord")
@@ -181,4 +183,4 @@ def read_tfRecord():
 #gen_TFRecord(ds)
 #input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)
 #input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)
-read_tfRecord()
+#read_tfRecord()
