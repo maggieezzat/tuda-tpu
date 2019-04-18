@@ -112,25 +112,6 @@ def create_float_feature(values):
 def _bytes_feature(value):
      return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
-def decode_record(record, name_to_features):
-
-    """Decodes a record to a TensorFlow example."""
-    example = tf.parse_example([record], features=name_to_features)
-
-    # Since the arrays were stored as strings, they are now 1d 
-    features_1d = tf.decode_raw(example['features'], tf.float32)
-    labels = tf.decode_raw(example['labels'], tf.int32)
-    shape = tf.decode_raw(example['shape'], tf.int32)
-
-    # In order to make the arrays in their original shape, they have to be reshaped.
-    #label_restored = tf.reshape(label_1d, tf.stack([2, 3, -1]))
-    #sample_restored = tf.reshape(sample_1d, tf.stack([2, 3, -1]))
-    #print(shape)
-    #TODO I have no idea if shape[0] is how it is supposed to be used
-    features_restored = tf.reshape(features_1d, shape[0])
-    print(tf.size(labels))
-    return features_restored,labels
-
 
 def input_fn(batch_size, input_files_csv, repeat=1):
     input_files = []
@@ -139,32 +120,39 @@ def input_fn(batch_size, input_files_csv, repeat=1):
     with open(input_files_csv, 'r') as f:
         input_files = f.readlines()
         input_files = [x.strip('\n') for x in input_files]
-    test =[]
-    """
-    for input_pattern in input_files:
-        #print("hi")
-        test.extend(tf.gfile.Glob(input_pattern))
-        #print(test[index])
-        index+=1
-    """
-    #print(type(input_files[0]))
-    #print(type(test[0]))
-    #print(test)
+  
     
-    features_dict = { 
+    def decode_record(record, name_to_features):
+
+        """Decodes a record to a TensorFlow example."""
+        name_to_features = { 
         "features":tf.FixedLenFeature([], tf.string), 
         "shape":tf.FixedLenFeature([], tf.string),
         "labels":tf.FixedLenFeature([], tf.string)
         }
+        example = tf.parse_example([record], features=name_to_features)
 
+        # Since the arrays were stored as strings, they are now 1d 
+        features_1d = tf.decode_raw(example['features'], tf.float32)
+        labels = tf.decode_raw(example['labels'], tf.int32)
+        shape = tf.decode_raw(example['shape'], tf.int32)
+
+        # In order to make the arrays in their original shape, they have to be reshaped.
+        #label_restored = tf.reshape(label_1d, tf.stack([2, 3, -1]))
+        #sample_restored = tf.reshape(sample_1d, tf.stack([2, 3, -1]))
+        #print(shape)
+        #TODO I have no idea if shape[0] is how it is supposed to be used
+        #features_restored = tf.reshape(features_1d, shape[0])
+        #print(tf.size(labels))
+        return features_1d,labels
     #TODO parallel batches
-    dataset = tf.data.TFRecordDataset(input_files)
+    dataset = tf.data.TFRecordDataset(input_files_csv)
 
     #"E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord"
 
-    dataset = dataset.repeat(repeat)
+    dataset = dataset.repeat()
     dataset = dataset.apply(tf.contrib.data.map_and_batch(
-    lambda record: decode_record(record,features_dict),
+    decode_record,
     batch_size = batch_size,
     num_parallel_batches = 1,
     drop_remainder = True))
