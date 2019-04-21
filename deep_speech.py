@@ -68,8 +68,10 @@ def compute_length_after_conv(max_time_steps, ctc_time_steps, input_length):
 def ctc_loss(label_length, ctc_input_length, labels, logits):
     """Computes the ctc loss for the current batch of predictions."""
 
-    label_length = tf.squeeze(label_length)
-    label_length = tf.to_int32(label_length)
+    label_length = tf.convert_to_tensor(label_length, dtype= tf.int32)
+    #label_length = tf.squeeze(label_length)
+    #label_length = tf.to_int32(label_length)
+    label_length = tf.to_int32(tf.squeeze(label_length))
 
     ctc_input_length = tf.to_int32(tf.squeeze(ctc_input_length))
 
@@ -153,15 +155,11 @@ def model_fn(features, labels, mode, params):
     current mode.
   """
     num_classes = params["num_classes"]
-    input_length = features.shape[1]
-    label_length = labels.shape[1]
-   
-   # features = features["features"]
-    print("##################deep speech##################")
-    print(labels.shape)
-    print(input_length)
-    print(label_length)
-    print("##################deep speech##################")
+    
+    input_length = features["input_length"]
+    label_length = features["label_length"]
+    features = features["features"]
+
     # Create DeepSpeech2 model.
     model = deep_speech_model.DeepSpeech2(
         flags_obj.rnn_hidden_layers,
