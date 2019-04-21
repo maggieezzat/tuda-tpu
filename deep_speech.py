@@ -67,7 +67,10 @@ def compute_length_after_conv(max_time_steps, ctc_time_steps, input_length):
 
 def ctc_loss(label_length, ctc_input_length, labels, logits):
     """Computes the ctc loss for the current batch of predictions."""
-    label_length = tf.to_int32(tf.squeeze(label_length))
+
+    label_length = tf.squeeze(label_length)
+    label_length = tf.to_int32(label_length)
+
     ctc_input_length = tf.to_int32(tf.squeeze(ctc_input_length))
 
     sparse_labels = tf.to_int32(
@@ -150,12 +153,15 @@ def model_fn(features, labels, mode, params):
     current mode.
   """
     num_classes = params["num_classes"]
-   # input_length = features["input_length"]
-   # label_length = features["label_length"]
+    input_length = features.shape[1]
+    label_length = labels.shape[1]
+   
    # features = features["features"]
-    print("####################################")
-    print(features)
-    print("####################################")
+    print("##################deep speech##################")
+    print(labels.shape)
+    print(input_length)
+    print(label_length)
+    print("##################deep speech##################")
     # Create DeepSpeech2 model.
     model = deep_speech_model.DeepSpeech2(
         flags_obj.rnn_hidden_layers,
@@ -221,8 +227,8 @@ def run_deep_speech(_):
     #eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
 
     # Number of label classes. Label string is "[a-z]' -"
-    num_classes = 30
-    #len(train_speech_dataset.speech_labels)
+    #num_classes = len(train_speech_dataset.speech_labels)
+    num_classes = 32
 
     # Use distribution strategy for multi-gpu training
     num_gpus = flags_core.get_num_gpus(flags_obj)

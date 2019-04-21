@@ -60,9 +60,6 @@ def batch_norm(inputs, training):
 
 
 def _conv_bn_layer(inputs, padding, filters, kernel_size, strides, layer_id, training):
-    print("########################FROM CONV###########################")
-    print(type(inputs))
-    print("########################BYE CONV###########################")
     """Defines 2D convolutional + batch normalization layer.
   Args:
     inputs: input data for convolution layer.
