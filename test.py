@@ -171,9 +171,6 @@ def input_fn(batch_size, input_files_csv, repeat=1):
         dim2 = tf.cast(example["dim2"], tf.int32)
         dim3 = tf.cast(example["dim3"], tf.int32)
         tf.dtypes.cast(dim1,tf.int32)
-        print("#####################")
-        print(type(dim1))
-        print(type(example["dim1"]))
         #shape = tf.decode_raw(example['shape'], tf.int32)
         # In order to make the arrays in their original shape, they have to be reshaped.
         #label_restored = tf.reshape(label_1d, tf.stack([2, 3, -1]))
