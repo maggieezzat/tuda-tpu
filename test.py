@@ -171,9 +171,9 @@ def input_fn(batch_size, input_files_csv, repeat=1):
 
 
 #ds = generate_dataset("E:/TUDA/german-speechdata-package-v2/test.csv")
-ds = generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
+#ds = generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
 #print(len(ds.speech_labels))
-convert_to_TF(ds)
+#convert_to_TF(ds)
 
 
 #read_tfRecord()
