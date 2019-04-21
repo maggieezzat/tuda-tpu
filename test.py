@@ -78,11 +78,14 @@ def gen_TFRecord(deep_speech_dataset):
       )
 
       flattened_features = [item for sublist_20ms in features for item in sublist_20ms]
-      
+      ff = tf.reshape(flattened_features,[161,1])
       feature_dict = collections.OrderedDict()
-      feature_dict["features"] = create_float_feature(flattened_features)
-      feature_dict["shape"] = create_int_feature([len(features),num_feature_bins,1])
-      feature_dict["labels"] = create_int_feature(labels)
+      feature_dict["features"] = _bytes_feature(tf.compat.as_bytes(np.asarray(flattened_features).tostring()))
+      # create_float_feature(flattened_features)
+      feature_dict["shape"] = _bytes_feature(tf.compat.as_bytes(np.asarray([len(features),num_feature_bins,1]).tostring()))
+      #create_int_feature([len(features),num_feature_bins,1])
+      feature_dict["labels"] = _bytes_feature(tf.compat.as_bytes(np.asarray(labels).tostring()))
+      #create_int_feature(labels)
 
       tf_example = tf.train.Example(features=tf.train.Features(feature=feature_dict))
       writers[writer_index].write(tf_example.SerializeToString())
@@ -97,11 +100,38 @@ def gen_TFRecord(deep_speech_dataset):
       for record in records_csv:
           f.write(record + '\n')
     
+def convert_to_TF(deep_speech_dataset):
+  data_entries = deep_speech_dataset.entries
+  num_feature_bins = deep_speech_dataset.num_feature_bins
+  audio_featurizer = deep_speech_dataset.audio_featurizer
+  feature_normalize = deep_speech_dataset.config.audio_config.normalize
+  text_featurizer = deep_speech_dataset.text_featurizer
+  filename ="E:/TUDA/german-speechdata-package-v2/test.tfrecords"
+  print('Writing', filename)
+  with tf.python_io.TFRecordWriter(filename) as writer:
+    for audio_file, _, transcript in data_entries:
+      features = dataset._preprocess_audio(
+          audio_file, audio_featurizer, feature_normalize
+      )
+      labels = featurizer.compute_label_feature(
+          transcript, text_featurizer.token_to_index
+      )
 
-def create_int_feature(values):
-  feature = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
-  return feature
+      flattened_features = [item for sublist_20ms in features for item in sublist_20ms]
+     
+      example = tf.train.Example(
+          features=tf.train.Features(
+              feature={
+                  'dim1': _int64_feature(len(features)),
+                  'dim2': _int64_feature(num_feature_bins),
+                  'dim3': _int64_feature(1),
+                  'labels':_bytes_feature(np.asarray(labels).tostring()),
+                  'features': _bytes_feature(np.asarray(flattened_features).tostring())
+              }))
+    writer.write(example.SerializeToString())
 
+def _int64_feature(value):
+  return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 def create_float_feature(values):
   feature = tf.train.Feature(float_list=tf.train.FloatList(value=list(values)))
@@ -134,21 +164,12 @@ def decode_record(record, name_to_features):
 def input_fn(batch_size, input_files_csv, repeat=1):
     input_files = []
     index = 0
-    
+    tfrecord_input = "/content/test.tfrecords"
+    """
     with open(input_files_csv, 'r') as f:
         input_files = f.readlines()
         input_files = [x.strip('\n') for x in input_files]
-    test =[]
-    """
-    for input_pattern in input_files:
-        #print("hi")
-        test.extend(tf.gfile.Glob(input_pattern))
-        #print(test[index])
-        index+=1
-    """
-    #print(type(input_files[0]))
-    #print(type(test[0]))
-    #print(test)
+  """
     
     features_dict = { "features":tf.FixedLenFeature([],tf.float32),
      "shape":tf.FixedLenFeature([3],tf.int64), 
@@ -159,14 +180,16 @@ def input_fn(batch_size, input_files_csv, repeat=1):
 
     #"E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord"
 
-    dataset = dataset.repeat(repeat)
+    dataset = dataset.repeat()
     dataset = dataset.apply(tf.contrib.data.map_and_batch(
-    lambda record: decode_record(record,features_dict),
+    decode_record,
     batch_size = batch_size,
     num_parallel_batches = 1,
     drop_remainder = True))
     #print(dataset)
     return dataset
+
+
 def read_tfRecord():
     record_iterator = tf.python_io.tf_record_iterator(path="E:/TUDA/german-speechdata-package-v2/test/2015-02-10-14-33-08_Realtek.tfrecord")
     for string_record in record_iterator:
@@ -178,8 +201,47 @@ def read_tfRecord():
         break
   
   # Exit after 1 iteration as this is purely demonstrative.
-  
+
+def check_reshape(deep_speech_dataset):
+    
+
+  data_entries = deep_speech_dataset.entries
+  num_feature_bins = deep_speech_dataset.num_feature_bins
+  audio_featurizer = deep_speech_dataset.audio_featurizer
+  feature_normalize = deep_speech_dataset.config.audio_config.normalize
+  text_featurizer = deep_speech_dataset.text_featurizer
+ 
+  """Dataset generator function."""
+
+ 
+  for audio_file, _, transcript in data_entries:
+      features = dataset._preprocess_audio(
+          audio_file, audio_featurizer, feature_normalize
+      )
+      labels = featurizer.compute_label_feature(
+          transcript, text_featurizer.token_to_index
+      )
+
+      flattened_features = [item for sublist_20ms in features for item in sublist_20ms]
+      #ff = tf.reshape(flattened_features,[features.shape[0],features.shape[1]])
+      ff = np.reshape(flattened_features,[features.shape[0],features.shape[1],1])
+      #for i in range(len(features)):
+       #   for j in range(len(features[i])):
+              #print(str(ff[i][j]) +"#############"+str( features[i][j]))
+              
+
+
+      #print(ff == features)
+      print(ff[0])
+      print("################")
+      print(features[0])
+      #print(features.shape)
+      break
+
+
 #ds = generate_dataset("E:/TUDA/german-speechdata-package-v2/test.csv")
+#convert_to_TF(ds)
+#check_reshape(ds)
 #gen_TFRecord(ds)
 #input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)
 #input_fn(128, "E:/TUDA/german-speechdata-package-v2/records_test.csv", 1)

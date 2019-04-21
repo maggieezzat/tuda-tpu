@@ -220,10 +220,15 @@ def run_deep_speech(_):
     tf.set_random_seed(flags_obj.seed)
     # Data preprocessing
     tf.logging.info("Data preprocessing...")
+<<<<<<< HEAD
     '''
     train_speech_dataset = generate_dataset(flags_obj.train_data_dir)
     eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
     '''
+=======
+    #train_speech_dataset = generate_dataset(flags_obj.train_data_dir)
+    #eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
+>>>>>>> 8249fca25832ca24106ef10520202ab291304c7c
 
     # Number of label classes. Label string is "[a-z]' -"
     num_classes = 30
@@ -316,6 +321,10 @@ def run_deep_speech(_):
             flags_obj.batch_size,
         )
         '''
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8249fca25832ca24106ef10520202ab291304c7c
         estimator.train(input_fn=input_fn_train, hooks=train_hooks, max_steps=flags_obj.train_steps)
 
         # Evaluation
@@ -404,13 +413,23 @@ def define_deep_speech_flags():
 
     flags.DEFINE_string(
         name="train_data_dir",
+<<<<<<< HEAD
         default= "/content/records_test.csv",
+=======
+        default= '/content/records_test.csv',
+        #"gs://deep_speech_bucket/german-speechdata-package-v2/train.csv",
+>>>>>>> 8249fca25832ca24106ef10520202ab291304c7c
         help=flags_core.help_wrap("The csv file path of train dataset."),
     )
 
     flags.DEFINE_string(
         name="eval_data_dir",
+<<<<<<< HEAD
         default= "/content/records_test.csv",
+=======
+        default= '/content/records_test.csv',
+        #"gs://deep_speech_bucket/german-speechdata-package-v2/test.csv",
+>>>>>>> 8249fca25832ca24106ef10520202ab291304c7c
         help=flags_core.help_wrap("The csv file path of evaluation dataset."),
     )
 
