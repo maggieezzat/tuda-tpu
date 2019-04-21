@@ -288,6 +288,7 @@ def run_deep_speech(_):
 
     def input_fn_train(params):
         #ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
+        #ds = test.input_fn(per_device_batch_size,'/content/records_test.csv')
         ds = test.input_fn(per_device_batch_size,'/content/records_test.csv')
         return ds
 

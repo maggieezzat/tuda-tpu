@@ -44,8 +44,11 @@ def generate_dataset(data_dir):
         stride_ms=10,
         normalize=True,
     )
+    #train_data_conf = dataset.DatasetConfig(
+    #    audio_conf, data_dir, "C:/Users/MariamDesouky/Desktop/tuda-tpu/data/vocabulary.txt", True
+    #)
     train_data_conf = dataset.DatasetConfig(
-        audio_conf, data_dir, "C:/Users/MariamDesouky/Desktop/tuda-tpu/data/vocabulary.txt", True
+        audio_conf, data_dir, "/home/maggieezzat9/tuda-tpu/data/vocabulary.txt", True
     )
     speech_dataset = dataset.DeepSpeechDataset(train_data_conf)
     return speech_dataset
@@ -56,18 +59,10 @@ def pad_features(features, maxFeat, padding_values):
   len_to_be_padded = maxFeat - len(features)
   exact = ( len_to_be_padded // len(padding_values) ) * 10
   extra = len_to_be_padded % len(padding_values)
-
-  #print("total: ", str(len_to_be_padded))
-  #print("exact: ", str(exact))
-  #print("extra: ", str(extra))
-
   while exact > 0:
     features = np.concatenate((features, padding_values), axis=0)
     exact-=10
-  
   features = np.concatenate((features, padding_values[:extra]), axis=0) 
-
-  #print(features.shape)
   return features
 
 
@@ -176,8 +171,9 @@ def input_fn(batch_size, input_files_csv, repeat=1):
 
 
 #ds = generate_dataset("E:/TUDA/german-speechdata-package-v2/test.csv")
+ds = generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
 #print(len(ds.speech_labels))
-#convert_to_TF(ds)
+convert_to_TF(ds)
 
 
 #read_tfRecord()
