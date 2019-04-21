@@ -150,10 +150,12 @@ def model_fn(features, labels, mode, params):
     current mode.
   """
     num_classes = params["num_classes"]
-    input_length = features["input_length"]
-    label_length = features["label_length"]
-    features = features["features"]
-
+   # input_length = features["input_length"]
+   # label_length = features["label_length"]
+   # features = features["features"]
+    print("####################################")
+    print(features)
+    print("####################################")
     # Create DeepSpeech2 model.
     model = deep_speech_model.DeepSpeech2(
         flags_obj.rnn_hidden_layers,

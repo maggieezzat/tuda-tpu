@@ -182,8 +182,8 @@ def input_fn(batch_size, input_files_csv, repeat=1):
         #TODO I have no idea if shape[0] is how it is supposed to be used
         #features_restored = tf.reshape(features_1d, shape[0])
         #print(tf.size(labels))
-        #features_1d.set_shape([256*161])
-        #labels.set_shape([30])
+        features_1d.set_shape([256*161])
+        labels.set_shape([30])
         return features_1d,labels
     #TODO parallel batches
     dataset = tf.data.TFRecordDataset(tfrecord_input)
