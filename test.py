@@ -78,7 +78,8 @@ def convert_to_TF(deep_speech_dataset):
   feature_normalize = deep_speech_dataset.config.audio_config.normalize
   text_featurizer = deep_speech_dataset.text_featurizer
   EOSindex = text_featurizer.token_to_index['$']
-  filename ="E:/TUDA/german-speechdata-package-v2/test.tfrecords"
+  #filename ="E:/TUDA/german-speechdata-package-v2/test.tfrecords"
+  filename ="gs://german-speechdata-package-v2/test.tfrecords"
   print('Writing', filename)
   maxFeat = -1
   maxLab = -1
@@ -133,7 +134,7 @@ def _bytes_feature(value):
 
 def input_fn(batch_size, input_files_csv, repeat=1):
   
-    tfrecord_input = "/content/test.tfrecords"
+    tfrecord_input = "gs://german-speechdata-package-v2/test.tfrecords"
     
     def decode_record(record):
 
@@ -159,7 +160,7 @@ def input_fn(batch_size, input_files_csv, repeat=1):
         "input_length":input_length,
         "label_length":label_length
         },labels)
-        
+
     #TODO parallel batches
     dataset = tf.data.TFRecordDataset(tfrecord_input)
 
