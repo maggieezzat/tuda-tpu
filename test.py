@@ -129,7 +129,7 @@ def _bytes_feature(value):
 
 def input_fn(batch_size, input_files_csv, repeat=1):
   
-    tfrecord_input = "gs://german-speechdata-package-v2/test.tfrecords"
+    tfrecord_input = "gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords"
     
     def decode_record(record):
 
