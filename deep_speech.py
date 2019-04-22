@@ -78,12 +78,6 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
     y_pred = tf.log(tf.transpose(logits, perm=[1, 0, 2]) + tf.keras.backend.epsilon())
 
     return tf.expand_dims(
-        """tf.nn.ctc_loss_v2(
-            labels=labels,
-            logits=y_pred,
-            label_length=label_length,
-            logit_length=ctc_input_length,
-        ),"""
         tf.nn.ctc_loss(
             labels=labels,
             inputs=y_pred,
@@ -91,6 +85,13 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
             ignore_longer_outputs_than_inputs=True,
         ),
         axis=1,
+        """tf.nn.ctc_loss_v2(
+            labels=labels,
+            logits=y_pred,
+            label_length=label_length,
+            logit_length=ctc_input_length,
+        ),"""
+       
     )
 
 
