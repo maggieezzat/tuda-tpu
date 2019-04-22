@@ -198,15 +198,12 @@ def model_fn(features, labels, mode, params):
     loss = tf.reduce_mean(ctc_loss(label_length, ctc_input_length, labels, probs))
 
     optimizer = tf.train.AdamOptimizer(learning_rate=flags_obj.learning_rate)
-    #if flags_obj.use_tpu:
-    #  optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
+    if flags_obj.use_tpu:
+      optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
 
 
     global_step = tf.train.get_or_create_global_step()
     minimize_op = optimizer.minimize(loss, global_step=global_step)
-
-    if flags_obj.use_tpu:
-      train_op = tf.contrib.tpu.CrossShardOptimizer(minimize_op)
 
     #update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     
@@ -215,7 +212,7 @@ def model_fn(features, labels, mode, params):
 
     
 
-    return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+    return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=minimize_op)
 
 
 def run_deep_speech(_):
