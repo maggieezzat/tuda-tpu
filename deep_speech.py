@@ -213,7 +213,7 @@ def model_fn(features, labels, mode, params):
     # Create the train_op that groups both minimize_ops and update_ops
     train_op = tf.group(minimize_op, update_ops) 
 
-     if flags_obj.use_tpu:
+    if flags_obj.use_tpu:
       train_op = tf.contrib.tpu.CrossShardOptimizer(train_op)
 
     return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=train_op)
