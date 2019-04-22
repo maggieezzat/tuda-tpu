@@ -323,8 +323,8 @@ def run_deep_speech(_):
         estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
         # Evaluation
-        tf.logging.info("Starting to evaluate...")
-
+        tf.logging.info("\n\n\nStarting to evaluate...")
+        """
         eval_results = evaluate_model(
             estimator,
             eval_speech_dataset.speech_labels,
@@ -339,6 +339,11 @@ def run_deep_speech(_):
                 cycle_index + 1, eval_results[_WER_KEY], eval_results[_CER_KEY]
             )
         )
+
+        """
+        eval_results = estimator.evaluate(input_fn=input_fn_eval, hooks=train_hooks, steps = flags_obj.eval_steps)
+        print(eval_results)
+        tf.logging.info("END...\n\n\n\n")
 
         # If some evaluation threshold is met
         if model_helpers.past_stop_threshold(
