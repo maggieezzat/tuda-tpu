@@ -379,7 +379,7 @@ def define_deep_speech_flags():
         #export_dir= "/content/deep_speech_saved_model/",
         model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model2/",
         export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model2/",
-        train_epochs=10,
+        train_epochs=1,
         batch_size=32,
         hooks="",
     )
@@ -400,7 +400,7 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 10000, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
     
     tf.flags.DEFINE_integer("eval_steps", 10,
                         "Total number of evaluation steps. If `0`, evaluation "
@@ -465,13 +465,13 @@ def define_deep_speech_flags():
     # RNN related flags
     flags.DEFINE_integer(
         name="rnn_hidden_size",
-        default=800,
+        default=50,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        default=5,
+        default=2,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 
