@@ -241,8 +241,9 @@ def run_deep_speech(_):
       
       tpu_config = tf.contrib.tpu.TPUConfig(
           iterations_per_loop=flags_obj.iterations,
-          num_shards=flags_obj.num_shards,
-          #per_host_input_for_training=is_per_host
+          #num_shards=flags_obj.num_shards,
+          #num_cores_per_replica=8,
+          per_host_input_for_training=is_per_host
           ),
     )
 
