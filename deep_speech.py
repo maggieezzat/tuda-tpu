@@ -339,17 +339,19 @@ def run_deep_speech(_):
                 cycle_index + 1, eval_results[_WER_KEY], eval_results[_CER_KEY]
             )
         )
-
-        """
-        eval_results = estimator.evaluate(input_fn=input_fn_eval, hooks=train_hooks, steps = flags_obj.eval_steps)
-        print(eval_results)
-        tf.logging.info("END...\n\n\n\n")
+        
 
         # If some evaluation threshold is met
         if model_helpers.past_stop_threshold(
             flags_obj.wer_threshold, eval_results[_WER_KEY]
         ):
             break
+
+        """
+        eval_results = estimator.predict(input_fn=input_fn_eval)
+        print(eval_results)
+        tf.logging.info("END...\n\n\n\n")
+
 
 
 def define_deep_speech_flags():
