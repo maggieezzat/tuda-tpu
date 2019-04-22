@@ -240,7 +240,7 @@ def run_deep_speech(_):
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
 
     estimator = tf.contrib.tpu.TPUEstimator(
-      model_fn= tf.contrib.tpu.keras_to_tpu_model(model_fn),
+      model_fn= model_fn,
       model_dir=flags_obj.model_dir,
       use_tpu=flags_obj.use_tpu,
       train_batch_size=flags_obj.batch_size,
