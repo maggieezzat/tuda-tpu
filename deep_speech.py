@@ -138,7 +138,7 @@ def evaluate_model(estimator, speech_labels, entries, input_fn_eval):
     return eval_results
 
 
-def model_fn(features_dict, labels, mode, params):
+def model_fn(features, labels, mode, params):
     """Define model function for deep speech model.
   Args:
     features: a dictionary of input_data features. It includes the data
@@ -153,9 +153,9 @@ def model_fn(features_dict, labels, mode, params):
   """
     num_classes = params["num_classes"]
     
-    input_length = features_dict["input_length"]
-    label_length = features_dict["label_length"]
-    features = features_dict["features"]
+    input_length = features["input_length"]
+    label_length = features["label_length"]
+    features = features["features"]
 
     # Create DeepSpeech2 model.
     model = deep_speech_model.DeepSpeech2(
