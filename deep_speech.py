@@ -268,6 +268,7 @@ def run_deep_speech(_):
       use_tpu=flags_obj.use_tpu,
       train_batch_size=flags_obj.batch_size,
       eval_batch_size=flags_obj.batch_size,
+      predict_batch_size=flags_obj.batch_size,
       params={"num_classes": num_classes,
         },
       config=run_config)
@@ -379,7 +380,7 @@ def define_deep_speech_flags():
         #export_dir= "/content/deep_speech_saved_model/",
         model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model2/",
         export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model2/",
-        train_epochs=1,
+        train_epochs=2,
         batch_size=32,
         hooks="",
     )
