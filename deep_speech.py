@@ -295,12 +295,9 @@ def run_deep_speech(_):
 
     def input_fn_train(params):
         ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir)
-        #ds = dataset.input_fn(per_device_batch_size, flags_obj.train_data_dir)
-         #return test.input_fn(per_device_batch_size, train_speech_dataset)
         return ds
 
     def input_fn_eval(params):
-        #ds = dataset.input_fn(per_device_batch_size, flags_obj.eval_data_dir)
         ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
         return ds
        
@@ -322,9 +319,8 @@ def run_deep_speech(_):
         )
         '''
 
-        estimator.train(input_fn=input_fn_train,
-        # hooks=train_hooks,
-         max_steps=flags_obj.train_steps)
+        estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=100)
+        #max_steps=flags_obj.train_steps)
 
         # Evaluation
         tf.logging.info("Starting to evaluate...")
