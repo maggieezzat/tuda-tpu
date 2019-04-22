@@ -75,7 +75,16 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
     #sparse_labels = tf.to_int32(
     #    tf.keras.backend.ctc_label_dense_to_sparse(labels, label_length)
     #)
+    
     y_pred = tf.log(tf.transpose(logits, perm=[1, 0, 2]) + tf.keras.backend.epsilon())
+    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+    print(labels.shape)
+    print(type(labels))
+    print(logits.shape)
+    print(type(logits))
+    print(y_pred.shape)
+    print(type(y_pred))
+    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
     """
     tf.nn.ctc_loss(
