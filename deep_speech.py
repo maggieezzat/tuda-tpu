@@ -197,7 +197,7 @@ def model_fn(features, labels, mode, params):
     loss = tf.reduce_mean(ctc_loss(label_length, ctc_input_length, labels, probs))
 
     #optimizer = tf.train.AdamOptimizer(learning_rate=flags_obj.learning_rate)
-    optimizer = tf.train.AdaFactorOptimizer(learning_rate=flags_obj.learning_rate)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=flags_obj.learning_rate)
     if flags_obj.use_tpu:
       optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
     global_step = tf.train.get_or_create_global_step()
