@@ -227,6 +227,8 @@ def run_deep_speech(_):
       project=flags_obj.gcp_project
     )
 
+    is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
+
     #TODO tpu cores
     distribution_strategy = tf.contrib.tpu.TPUDistributionStrategy(tpu_cluster_resolver)
 
@@ -237,7 +239,10 @@ def run_deep_speech(_):
       session_config=tf.ConfigProto(
           allow_soft_placement=True, log_device_placement=True),
       
-      tpu_config=tf.contrib.tpu.TPUConfig(flags_obj.iterations,flags_obj.num_shards),
+      tpu_config = tf.contrib.tpu.TPUConfig(
+          terations_per_loop=flags_obj.iterations,
+          num_shards=flags_obj.num_shards,
+          per_host_input_for_training=is_per_host)),
     )
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
@@ -274,18 +279,20 @@ def run_deep_speech(_):
     )
 
     per_device_batch_size = distribution_utils.per_device_batch_size(
-        flags_obj.batch_size, num_gpus
+        flags_obj.batch_size, flags_obj.num_shards
     )
     #TODO generate dataset moved into pre_process_tuda to be called only once
     #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
 
     def input_fn_train(params):
-        ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir)
+        #ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir)
+        ds = dataset.input_fn(per_device_batch_size, flags_obj.train_data_dir)
          #return test.input_fn(per_device_batch_size, train_speech_dataset)
         return ds
 
     def input_fn_eval(params):
-        ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
+        ds = dataset.input_fn(per_device_batch_size, flags_obj.eval_data_dir)
+        #ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
         return ds
        
 
