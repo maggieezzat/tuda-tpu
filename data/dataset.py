@@ -30,8 +30,8 @@ import tensorflow as tf
 
 import data.featurizer as featurizer  # pylint: disable=g-bad-import-order
 
-maxFeat = 281
-maxLab = 40
+maxFeat = 739
+maxLab = 138
 
 class AudioConfig(object):
     """Configs for spectrogram extraction from audio."""
@@ -293,7 +293,7 @@ def create_float_feature(values):
 
 
 #def input_fn(batch_size, tfrecord_input="E:/TUDA/german-speechdata-package-v2/test.tfrecords", repeat=1):
-def input_fn(batch_size, tfrecord_input="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords", repeat=1):
+def input_fn(batch_size, tfrecord_input="gs://deep_speech_bucket/german-speechdata-package-v2/test1024.tfrecords", repeat=1):
     
     def decode_record(record):
 

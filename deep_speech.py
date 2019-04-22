@@ -414,7 +414,7 @@ def define_deep_speech_flags():
         name="train_data_dir",
         #default= '/content/records_test.csv',
         #default= '/content/records_test.csv',
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords",
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/test1024.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of train dataset."),
     )
 
@@ -422,7 +422,7 @@ def define_deep_speech_flags():
     flags.DEFINE_string(
         name="eval_data_dir",
         #default= '/content/records_test.csv',
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords",
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/test1024.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
     )
 

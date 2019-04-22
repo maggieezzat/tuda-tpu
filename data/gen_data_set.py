@@ -28,10 +28,10 @@ import tensorflow as tf
 
 # pylint: enable=g-bad-import-order
 
-import data.featurizer as featurizer  # pylint: disable=g-bad-import-order
+import featurizer   # pylint: disable=g-bad-import-order
 
-maxFeat = -1
-maxLab = -1
+maxFeat = 739
+maxLab = 138
 
 class AudioConfig(object):
     """Configs for spectrogram extraction from audio."""
