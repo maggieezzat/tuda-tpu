@@ -215,13 +215,16 @@ def run_deep_speech(_):
 
     # Use distribution strategy for multi-gpu training
     num_gpus = flags_core.get_num_gpus(flags_obj)
-    distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
+    #distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
       flags_obj.tpu,
       zone=flags_obj.tpu_zone,
       project=flags_obj.gcp_project
     )
+
+    #TODO tpu cores
+    distribution_strategy = tf.contrib.tpu.TPUDistributionStrategy(tpu_cluster_resolver)
 
     run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
@@ -236,7 +239,7 @@ def run_deep_speech(_):
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
 
     estimator = tf.contrib.tpu.TPUEstimator(
-      model_fn=model_fn,
+      model_fn= tf.contrib.tpu.keras_to_tpu_model(model_fn),
       model_dir=flags_obj.model_dir,
       use_tpu=flags_obj.use_tpu,
       train_batch_size=flags_obj.batch_size,
