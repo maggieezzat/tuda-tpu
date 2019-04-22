@@ -349,7 +349,7 @@ def run_deep_speech(_):
 
         """
         eval_results = estimator.predict(input_fn=input_fn_eval)
-        print(eval_results)
+        for el in eval_results: print(el)
         tf.logging.info("END...\n\n\n\n")
 
 
