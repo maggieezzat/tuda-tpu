@@ -26,6 +26,7 @@ import tensorflow as tf
 # pylint: enable=g-bad-import-order
 
 import data.dataset as dataset
+import optimization 
 import decoder
 import deep_speech_model
 from official.utils.flags import core as flags_core
@@ -197,12 +198,17 @@ def model_fn(features, labels, mode, params):
     loss = tf.reduce_mean(ctc_loss(label_length, ctc_input_length, labels, probs))
 
     #optimizer = tf.train.AdamOptimizer(learning_rate=flags_obj.learning_rate)
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=flags_obj.learning_rate)
-    if flags_obj.use_tpu:
-      optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
+    #optimizer = tf.train.GradientDescentOptimizer(learning_rate=flags_obj.learning_rate)
+    #if flags_obj.use_tpu:
+    #  optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
+
+    optimizer = optimization.create_optimizer(
+          loss, flags_obj.learning_rate, flags_obj.train_steps, 100 , flags_obj.use_tpu)
+
     global_step = tf.train.get_or_create_global_step()
     minimize_op = optimizer.minimize(loss, global_step=global_step)
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    
     # Create the train_op that groups both minimize_ops and update_ops
     train_op = tf.group(minimize_op, update_ops)
 
@@ -395,7 +401,7 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 500, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 10000, "Total number of training steps.")
     
     tf.flags.DEFINE_integer("eval_steps", 10,
                         "Total number of evaluation steps. If `0`, evaluation "
