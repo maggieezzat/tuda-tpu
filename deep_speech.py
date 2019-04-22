@@ -23,7 +23,6 @@ import os
 from absl import app as absl_app
 from absl import flags
 import tensorflow as tf
-import test
 # pylint: enable=g-bad-import-order
 
 import data.dataset as dataset
