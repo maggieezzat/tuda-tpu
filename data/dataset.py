@@ -25,12 +25,13 @@ import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import soundfile
 import tensorflow as tf
-from data.datasets import StreamingFilesDataset as sfd
 
 # pylint: enable=g-bad-import-order
 
-import data.featurizer as featurizer  # pylint: disable=g-bad-import-order
+import featurizer  # pylint: disable=g-bad-import-order
 
+maxFeat = 281
+maxLab = 40
 
 class AudioConfig(object):
     """Configs for spectrogram extraction from audio."""
@@ -204,73 +205,133 @@ def batch_wise_dataset_shuffle(entries, epoch_index, sortagrad, batch_size):
     return shuffled_entries
           
 
-def input_fn(batch_size, input_files, repeat=1):
-    """Input function for model training and evaluation.
+def generate_dataset(data_dir):
+    """Generate a speech dataset."""
+    audio_conf = AudioConfig(
+        sample_rate=16000,
+        window_ms=20,
+        stride_ms=10,
+        normalize=True,
+    )
+    #train_data_conf = DatasetConfig(
+    #    audio_conf, data_dir, "C:/Users/MariamDesouky/Desktop/tuda-tpu/data/vocabulary.txt", True
+    #)
+    train_data_conf = DatasetConfig(
+        audio_conf, data_dir, "/home/maggieezzat9/tuda-tpu/data/vocabulary.txt", True
+    )
+    speech_dataset = DeepSpeechDataset(train_data_conf)
+    return speech_dataset
 
-  Args:
-    batch_size: an integer denoting the size of a batch.
-    deep_speech_dataset: DeepSpeechDataset object.
-    repeat: an integer for how many times to repeat the dataset.
 
-  Returns:
-    a tf.data.Dataset object for model to consume.
-  """
-    features_dict = {
-      "features" :tf.VarLenFeature(tf.float32),
-      "shape":tf.FixedLenFeature([3],tf.int64),
-      "labels":tf.VarLenFeature(tf.int64)
+def pad_features(features, maxFeat, padding_values):  
 
-    }
-  #TODO parallel batches
-    dataset = tf.data.TFRecordDataset(input_files)
-    dataset = dataset.repeat(repeat)
+  len_to_be_padded = maxFeat - len(features)
+  exact = ( len_to_be_padded // len(padding_values) ) * 10
+  extra = len_to_be_padded % len(padding_values)
+  while exact > 0:
+    features = np.concatenate((features, padding_values), axis=0)
+    exact-=10
+  features = np.concatenate((features, padding_values[:extra]), axis=0) 
+  return features
+
+
+#def convert_to_TF(deep_speech_dataset, tf_records_path="E:/TUDA/german-speechdata-package-v2/test.tfrecords"):
+def convert_to_TF(deep_speech_dataset, tf_records_path="gs://german-speechdata-package-v2/test.tfrecords"):
+  data_entries = deep_speech_dataset.entries
+  num_feature_bins = deep_speech_dataset.num_feature_bins
+  audio_featurizer = deep_speech_dataset.audio_featurizer
+  feature_normalize = deep_speech_dataset.config.audio_config.normalize
+  text_featurizer = deep_speech_dataset.text_featurizer
+  
+  EOSindex = text_featurizer.token_to_index['$']
+  print('Writing', tf_records_path)
+  maxFeat = -1
+  maxLab = -1
+  featuresA =[]
+  labelsA = []
+  for audio_file, _, transcript in data_entries[:20]:
+    features = _preprocess_audio(
+        audio_file, audio_featurizer, feature_normalize
+    )
+    labels = featurizer.compute_label_feature(
+        transcript, text_featurizer.token_to_index
+    )
+    if(len(features) > maxFeat):
+      maxFeat = len(features)
+    if(len(labels) > maxLab):
+      maxLab = len(labels)
+    featuresA.append(features)
+    labelsA.append(labels)
+  #To make the  character '$' the end of sentence   
+  maxLab +=1
+
+  with tf.python_io.TFRecordWriter(tf_records_path) as writer:
+    for index in range(len(featuresA)):
+      features = featuresA[index]
+      features = pad_features(features, maxFeat, features[-10:])
+      labels = labelsA[index]
+      labels = labels +([EOSindex] * (maxLab - len(labels)))
+
+      flattened_features = [item for sublist_20ms in features for item in sublist_20ms]
+      example = tf.train.Example(
+          features=tf.train.Features(
+              feature={
+                  'labels':_int64_feature(labels),
+                  'features': create_float_feature(flattened_features),
+                  'input_length': _int64_feature([maxFeat]),
+                  'label_length': _int64_feature([maxLab]),
+              }))
+    
+    writer.write(example.SerializeToString())
+
+def _int64_feature(value):
+  return tf.train.Feature(int64_list=tf.train.Int64List(value=list(value)))
+
+def create_float_feature(values):
+  feature = tf.train.Feature(float_list=tf.train.FloatList(value=list(values)))
+  return feature
+
+
+#def input_fn(batch_size, tfrecord_input="E:/TUDA/german-speechdata-package-v2/test.tfrecords", repeat=1):
+def input_fn(batch_size, tfrecord_input="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords", repeat=1):
+    
+    def decode_record(record):
+
+        """Decodes a record to a TensorFlow example."""
+        name_to_features = { 
+        "features":tf.FixedLenFeature([maxFeat*161], tf.float32), 
+        "labels":tf.FixedLenFeature([maxLab], tf.int64),
+        "input_length":tf.FixedLenFeature([1], tf.int64),
+        "label_length":tf.FixedLenFeature([1], tf.int64)
+ 
+        }
+        example = tf.parse_single_example(record, features=name_to_features)
+
+        features_1d = tf.cast(example['features'], tf.float32)
+        features = tf.reshape(features_1d,tf.stack([maxFeat,161,1]))
+        labels = tf.cast(example['labels'], tf.int32)
+        labels = tf.reshape(labels,tf.stack([maxLab]))
+        
+        input_length = tf.cast(example['input_length'], tf.int32)
+        label_length = tf.cast(example['label_length'], tf.int32)
+
+        return ({"features":features,
+        "input_length":input_length,
+        "label_length":label_length
+        },labels)
+
+    #TODO parallel batches
+    dataset = tf.data.TFRecordDataset(tfrecord_input)
+
+    dataset = dataset.repeat()
     dataset = dataset.apply(tf.contrib.data.map_and_batch(
-      lambda record: decode_record(record,features_dict),
-      batch_size = batch_size,
-      num_parallel_batches = 1,
-      drop_remainder = True
-
-    ))
-    
-    '''
-    # Repeat and batch the dataset
-    dataset = dataset.repeat(repeat)
-
-    dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
-
-    # Padding the features to its max length dimensions.
-    """dataset = dataset.padded_batch(
-        batch_size=batch_size
-        padded_shapes=(
-            {
-                "features": tf.TensorShape([None, num_feature_bins, 1]),
-                "input_length": tf.TensorShape([1]),
-                "label_length": tf.TensorShape([1]),
-            },
-            tf.TensorShape([None]),
-        ),
-    )"""
-
-    #dataset = dataset.apply(tf.contrib.data.batch_and_drop_remainder(batch_size))
-    #dataset = dataset.batch(batch_size, drop_remainder=True)
-    # Prefetch to improve speed of input pipeline.
-    dataset = dataset.prefetch(buffer_size=tf.contrib.data.AUTOTUNE)
-    '''
-    
+    decode_record,
+    batch_size = batch_size,
+    num_parallel_batches = 1,
+    drop_remainder = True))
+ 
     return dataset
 
-def decode_record(record, name_to_features):
-  """Decodes a record to a TensorFlow example."""
-  example = tf.parse_single_example(record, name_to_features)
-  print(example)
-
-  # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
-  # So cast all int64 to int32.
-  for name in list(example.keys()):
-    print(name)
-    t = example[name]
-    if t.dtype == tf.int64:
-      t = tf.to_int32(t)
-    example[name] = t
-
-  return example
+#ds = generate_dataset("E:/TUDA/german-speechdata-package-v2/test.csv")
+#ds = generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
+#convert_to_TF(ds)

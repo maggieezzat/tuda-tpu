@@ -68,9 +68,7 @@ def compute_length_after_conv(max_time_steps, ctc_time_steps, input_length):
 def ctc_loss(label_length, ctc_input_length, labels, logits):
     """Computes the ctc loss for the current batch of predictions."""
 
-    label_length = tf.convert_to_tensor(label_length, dtype= tf.int32)
-    #label_length = tf.squeeze(label_length)
-    #label_length = tf.to_int32(label_length)
+    #label_length = tf.convert_to_tensor(label_length, dtype= tf.int32)
     label_length = tf.to_int32(tf.squeeze(label_length))
 
     ctc_input_length = tf.to_int32(tf.squeeze(ctc_input_length))
@@ -141,7 +139,7 @@ def evaluate_model(estimator, speech_labels, entries, input_fn_eval):
     return eval_results
 
 
-def model_fn(features, labels, mode, params):
+def model_fn(features_dict, labels, mode, params):
     """Define model function for deep speech model.
   Args:
     features: a dictionary of input_data features. It includes the data
@@ -156,9 +154,9 @@ def model_fn(features, labels, mode, params):
   """
     num_classes = params["num_classes"]
     
-    input_length = features["input_length"]
-    label_length = features["label_length"]
-    features = features["features"]
+    input_length = features_dict["input_length"]
+    label_length = features_dict["label_length"]
+    features = features_dict["features"]
 
     # Create DeepSpeech2 model.
     model = deep_speech_model.DeepSpeech2(
@@ -201,29 +199,17 @@ def model_fn(features, labels, mode, params):
     return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
 
-def generate_dataset(data_dir):
-    """Generate a speech dataset."""
-    audio_conf = dataset.AudioConfig(
-        sample_rate=flags_obj.sample_rate,
-        window_ms=flags_obj.window_ms,
-        stride_ms=flags_obj.stride_ms,
-        normalize=True,
-    )
-    train_data_conf = dataset.DatasetConfig(
-        audio_conf, data_dir, flags_obj.vocabulary_file, flags_obj.sortagrad
-    )
-    speech_dataset = dataset.DeepSpeechDataset(train_data_conf)
-    return speech_dataset
-
-
 def run_deep_speech(_):
     """Run deep speech training and eval loop."""
     tf.set_random_seed(flags_obj.seed)
     # Data preprocessing
     tf.logging.info("Data preprocessing...")
-    #train_speech_dataset = generate_dataset(flags_obj.train_data_dir)
-    #eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
+    
+    #TODO handle generate_dataset only once in preprocess_tuda_data
+    #train_speech_dataset = dataset.generate_dataset(flags_obj.train_data_dir)
+    #eval_speech_dataset = dataset.generate_dataset(flags_obj.eval_data_dir)
 
+    #TODO handle num_classes
     # Number of label classes. Label string is "[a-z]' -"
     #num_classes = len(train_speech_dataset.speech_labels)
     num_classes = 32
@@ -284,22 +270,18 @@ def run_deep_speech(_):
     per_device_batch_size = distribution_utils.per_device_batch_size(
         flags_obj.batch_size, num_gpus
     )
-    #TODO
+    #TODO generate dataset moved into pre_process_tuda to be called only once
+    #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
 
     def input_fn_train(params):
-        #ds = dataset.input_fn(per_device_batch_size, train_speech_dataset)
-        #ds = test.input_fn(per_device_batch_size,'/content/records_test.csv')
-        ds = test.input_fn(per_device_batch_size,'/content/records_test.csv')
+        ds = dataset.input_fn(arams['batch_size'], flags_obj.train_data_dir)
+         #return test.input_fn(per_device_batch_size, train_speech_dataset)
         return ds
 
     def input_fn_eval(params):
-        return test.input_fn(params['batch_size'], eval_speech_dataset)
-
-    #def input_fn_predict(features, batch_size):
-        #dataset = tf.data.Dataset.from_tensor_slices(features)
-        #dataset = dataset.batch(batch_size)
-        #return dataset
-    #    return dataset.input_fn(per_device_batch_size, eval_speech_dataset)
+        ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
+        return ds
+       
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
     for cycle_index in range(total_training_cycle):
@@ -307,6 +289,7 @@ def run_deep_speech(_):
             "Starting a training cycle: %d/%d", cycle_index + 1, total_training_cycle
         )
 
+        #TODO data shuffling
         # Perform batch_wise dataset shuffling
         '''
         train_speech_dataset.entries = dataset.batch_wise_dataset_shuffle(
@@ -369,8 +352,8 @@ def define_deep_speech_flags():
         #export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
         #model_dir= "/content/deep_speech_model/",
         #export_dir= "/content/deep_speech_saved_model/",
-        model_dir= "gs://deep_speech_bucket/deep_speech_model/",
-        export_dir= "gs://deep_speech_bucket/deep_speech_saved_model/",
+        model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model/",
         train_epochs=10,
         batch_size=128,
         hooks="",
@@ -393,6 +376,7 @@ def define_deep_speech_flags():
     tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
     tf.flags.DEFINE_integer("train_steps", 500, "Total number of training steps.")
+    
     tf.flags.DEFINE_integer("eval_steps", 10,
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
@@ -405,19 +389,21 @@ def define_deep_speech_flags():
         name="seed", default=1, help=flags_core.help_wrap("The random seed.")
     )
 
+    #TODO
     flags.DEFINE_string(
         name="train_data_dir",
         #default= '/content/records_test.csv',
         #default= '/content/records_test.csv',
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/train.csv",
-        help=flags_core.help_wrap("The csv file path of train dataset."),
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords",
+        help=flags_core.help_wrap("The tfrecords file path of train dataset."),
     )
 
+    #TODO
     flags.DEFINE_string(
         name="eval_data_dir",
         #default= '/content/records_test.csv',
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/test.csv",
-        help=flags_core.help_wrap("The csv file path of evaluation dataset."),
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords",
+        help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
     )
 
     flags.DEFINE_bool(
@@ -454,14 +440,12 @@ def define_deep_speech_flags():
     # RNN related flags
     flags.DEFINE_integer(
         name="rnn_hidden_size",
-        #default=50,
         default=800,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        #default=2,
         default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
