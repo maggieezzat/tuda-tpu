@@ -71,7 +71,7 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
   grads = tf.gradients(loss, tvars)
 
   print("\n\n\n\n\n\n\n\n\n")
-  print(loss)
+  print(tf.contrib.util.constant_value(loss))
   print("\n\n\n\n\n\n\n\n\n")
 
   # This is how the model was pre-trained.
