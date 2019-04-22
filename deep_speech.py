@@ -223,7 +223,7 @@ def run_deep_speech(_):
     
     #TODO handle generate_dataset only once in preprocess_tuda_data
     #train_speech_dataset = dataset.generate_dataset(flags_obj.train_data_dir)
-    eval_speech_dataset = dataset.generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
+    #eval_speech_dataset = dataset.generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
 
     #TODO handle num_classes
     # Number of label classes. Label string is "[a-z]' -"
@@ -242,9 +242,6 @@ def run_deep_speech(_):
 
     is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
 
-    #TODO tpu cores
-    distribution_strategy = tf.contrib.tpu.TPUDistributionStrategy(tpu_cluster_resolver)
-
     run_config = tf.contrib.tpu.RunConfig(
       cluster=tpu_cluster_resolver,
       model_dir=flags_obj.model_dir,
@@ -254,13 +251,10 @@ def run_deep_speech(_):
       
       tpu_config = tf.contrib.tpu.TPUConfig(
           iterations_per_loop=flags_obj.iterations,
-          #num_shards=flags_obj.num_shards,
           num_cores_per_replica=8,
           per_host_input_for_training=is_per_host
           ),
     )
-
-    #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
 
     estimator = tf.contrib.tpu.TPUEstimator(
       model_fn= model_fn,
