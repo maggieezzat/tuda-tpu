@@ -240,7 +240,7 @@ def run_deep_speech(_):
           allow_soft_placement=True, log_device_placement=True),
       
       tpu_config = tf.contrib.tpu.TPUConfig(
-          terations_per_loop=flags_obj.iterations,
+          iterations_per_loop=flags_obj.iterations,
           num_shards=flags_obj.num_shards,
           per_host_input_for_training=is_per_host),
     )
