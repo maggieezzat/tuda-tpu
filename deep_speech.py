@@ -220,15 +220,12 @@ def run_deep_speech(_):
     tf.set_random_seed(flags_obj.seed)
     # Data preprocessing
     tf.logging.info("Data preprocessing...")
-<<<<<<< HEAD
     '''
     train_speech_dataset = generate_dataset(flags_obj.train_data_dir)
     eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
     '''
-=======
     #train_speech_dataset = generate_dataset(flags_obj.train_data_dir)
     #eval_speech_dataset = generate_dataset(flags_obj.eval_data_dir)
->>>>>>> 8249fca25832ca24106ef10520202ab291304c7c
 
     # Number of label classes. Label string is "[a-z]' -"
     num_classes = 30
