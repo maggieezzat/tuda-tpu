@@ -242,7 +242,8 @@ def run_deep_speech(_):
       tpu_config = tf.contrib.tpu.TPUConfig(
           iterations_per_loop=flags_obj.iterations,
           num_shards=flags_obj.num_shards,
-          per_host_input_for_training=is_per_host),
+          #per_host_input_for_training=is_per_host
+          ),
     )
 
     #run_config = tf.estimator.RunConfig(train_distribute=distribution_strategy)
@@ -285,14 +286,14 @@ def run_deep_speech(_):
     #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
 
     def input_fn_train(params):
-        #ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir)
-        ds = dataset.input_fn(per_device_batch_size, flags_obj.train_data_dir)
+        ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir)
+        #ds = dataset.input_fn(per_device_batch_size, flags_obj.train_data_dir)
          #return test.input_fn(per_device_batch_size, train_speech_dataset)
         return ds
 
     def input_fn_eval(params):
-        ds = dataset.input_fn(per_device_batch_size, flags_obj.eval_data_dir)
-        #ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
+        #ds = dataset.input_fn(per_device_batch_size, flags_obj.eval_data_dir)
+        ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
         return ds
        
 
