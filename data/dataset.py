@@ -28,7 +28,7 @@ import tensorflow as tf
 
 # pylint: enable=g-bad-import-order
 
-import featurizer  # pylint: disable=g-bad-import-order
+import data.featurizer as featurizer  # pylint: disable=g-bad-import-order
 
 maxFeat = 281
 maxLab = 40
