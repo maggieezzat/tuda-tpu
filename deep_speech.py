@@ -203,7 +203,7 @@ def model_fn(features, labels, mode, params):
     #  optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
 
     optimizer = optimization.create_optimizer(
-          loss, flags_obj.learning_rate, flags_obj.train_steps, 100 , flags_obj.use_tpu)
+          loss, flags_obj.learning_rate, flags_obj.train_steps, 0 , flags_obj.use_tpu)
     train_op = optimizer
 
     #global_step = tf.train.get_or_create_global_step()

@@ -73,13 +73,23 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
   # This is how the model was pre-trained.
   (grads, _) = tf.clip_by_global_norm(grads, clip_norm=1.0)
 
-  train_op = optimizer.apply_gradients(
-      zip(grads, tvars), global_step=global_step)
+  #train_op = optimizer.apply_gradients(
+  #    zip(grads, tvars), global_step=global_step)
 
   # Normally the global step update is done inside of `apply_gradients`.
   # However, `AdamWeightDecayOptimizer` doesn't do this. But if you use
   # a different optimizer, you should probably take this line out.
   new_global_step = global_step + 1
+
+  minimize_op = optimizer.apply_gradients(
+      zip(grads, tvars), global_step=global_step)
+  #minimize_op = optimizer.minimize(loss, global_step=global_step)
+  update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    
+  # Create the train_op that groups both minimize_ops and update_ops
+  train_op = tf.group(minimize_op, update_ops)
+
+
   train_op = tf.group(train_op, [global_step.assign(new_global_step)])
   return train_op
 
