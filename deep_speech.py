@@ -326,8 +326,7 @@ def run_deep_speech(_):
         )
         '''
 
-        estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=100)
-        #max_steps=flags_obj.train_steps)
+        estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
         # Evaluation
         tf.logging.info("Starting to evaluate...")
