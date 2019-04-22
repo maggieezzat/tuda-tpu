@@ -79,11 +79,13 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
     y_pred = tf.log(tf.transpose(logits, perm=[1, 0, 2]) + tf.keras.backend.epsilon())
     print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
     print(labels.shape)
-    print(type(labels))
     print(logits.shape)
-    print(type(logits))
     print(y_pred.shape)
-    print(type(y_pred))
+    print("\n\n")
+    print(label_length.shape)
+    print(type(label_length))
+    print(ctc_input_length.shape)
+    print(type(ctc_input_length))
     print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
     """
