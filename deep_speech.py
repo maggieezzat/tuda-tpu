@@ -361,7 +361,7 @@ def define_deep_speech_flags():
         model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model/",
         export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model/",
         train_epochs=10,
-        batch_size=128,
+        batch_size=32,
         hooks="",
     )
     
@@ -387,7 +387,7 @@ def define_deep_speech_flags():
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
-    tf.flags.DEFINE_integer("num_shards", 1, "Number of shards (TPU chips).")
+    tf.flags.DEFINE_integer("num_shards", 8, "Number of shards (TPU chips).")
 
 
     # Deep speech flags
