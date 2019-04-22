@@ -72,14 +72,15 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
 
     ctc_input_length = tf.to_int32(tf.squeeze(ctc_input_length))
 
-    sparse_labels = tf.to_int32(
-        tf.keras.backend.ctc_label_dense_to_sparse(labels, label_length)
-    )
+    #sparse_labels = tf.to_int32(
+    #    tf.keras.backend.ctc_label_dense_to_sparse(labels, label_length)
+    #)
     y_pred = tf.log(tf.transpose(logits, perm=[1, 0, 2]) + tf.keras.backend.epsilon())
 
     return tf.expand_dims(
-        tf.nn.ctc_loss(
-            labels=sparse_labels,
+        tf.nn.ctc_loss_v2(
+            #labels=sparse_labels,
+            labels=labels,
             inputs=y_pred,
             sequence_length=ctc_input_length,
             ignore_longer_outputs_than_inputs=True,
