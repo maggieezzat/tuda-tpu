@@ -223,7 +223,7 @@ def run_deep_speech(_):
     
     #TODO handle generate_dataset only once in preprocess_tuda_data
     #train_speech_dataset = dataset.generate_dataset(flags_obj.train_data_dir)
-    #eval_speech_dataset = dataset.generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
+    eval_speech_dataset = dataset.generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
 
     #TODO handle num_classes
     # Number of label classes. Label string is "[a-z]' -"
