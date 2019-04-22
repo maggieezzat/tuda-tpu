@@ -81,9 +81,12 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
         tf.nn.ctc_loss_v2(
             #labels=sparse_labels,
             labels=labels,
-            inputs=y_pred,
-            sequence_length=ctc_input_length,
-            ignore_longer_outputs_than_inputs=True,
+            #inputs=y_pred,
+            logits=y_pred,
+            #sequence_length=ctc_input_length,
+            label_length=label_length,
+            logit_length=ctc_input_length,
+            #ignore_longer_outputs_than_inputs=True,
         ),
         axis=1,
     )
