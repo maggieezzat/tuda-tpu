@@ -458,11 +458,13 @@ def run_deep_speech(_):
     #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
 
     def input_fn_train(params):
-        with open(flags_obj.train_data_lengths, 'r') as f:
-            content = f.readlines()
-        content = [x.strip() for x in content]
-        max_features_length = content[0]
-        max_labels_length = content[1]
+        #with open(flags_obj.train_data_lengths, 'r') as f:
+        #    content = f.readlines()
+        #content = [x.strip() for x in content]
+        #max_features_length = content[0]
+        #max_labels_length = content[1]
+        max_features_length = 3309
+        max_labels_length = 521
         print(max_features_length)
         print(max_labels_length)
         ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir, max_features_length, max_labels_length)
