@@ -252,11 +252,11 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 10, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 5, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 50, "Total number of training steps.")
     
-    tf.flags.DEFINE_integer("eval_steps", 10,
+    tf.flags.DEFINE_integer("eval_steps", 5,
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
