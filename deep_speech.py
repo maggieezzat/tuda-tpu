@@ -231,8 +231,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = os.path.join(_GS_BUCKET, "deep_speech_model/"),
-        export_dir= os.path.join(_GS_BUCKET, "deep_speech_saved_model/"),
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model/",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -271,14 +271,16 @@ def define_deep_speech_flags():
     #TODO
     flags.DEFINE_string(
         name="train_data_dir",
-        default=os.path.join(_GS_BUCKET, "test.tfrecords"),
+        #default=os.path.join(_GS_BUCKET, "test.tfrecords"),
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of train dataset."),
     )
 
     #TODO
     flags.DEFINE_string(
         name="eval_data_dir",
-        default=os.path.join(_GS_BUCKET, "dev.tfrecords"),
+        #default=os.path.join(_GS_BUCKET, "dev.tfrecords"),
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/dev.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
     )
 
@@ -500,7 +502,7 @@ def run_deep_speech(_):
     estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
         # Evaluation
-    #    tf.logging.info("\n\n\nStarting to evaluate...")
+    tf.logging.info("\n\n\nStarting to evaluate...")
     """
     eval_results = evaluate_model(
         estimator,
