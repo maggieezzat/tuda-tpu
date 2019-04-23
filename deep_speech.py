@@ -497,17 +497,7 @@ def run_deep_speech(_):
 
         # Evaluation
         tf.logging.info("***** Running evaluation *****")
-    
-        #result = estimator.evaluate(
-        #    input_fn=input_fn_eval, steps=flags_obj.eval_steps)
-
-        #tf.logging.info("***** Eval results *****")
-        #for key in sorted(result.keys()):
-        #    tf.logging.info("  %s = %s", key, str(result[key]))
-
-
-
-        """
+        
         eval_results = evaluate_model(
             estimator,
             speech_labels,
@@ -515,7 +505,6 @@ def run_deep_speech(_):
             input_fn_eval,
         )
 
-        
         # Log the WER and CER results.
         benchmark_logger.log_evaluation_result(eval_results)
         tf.logging.info(
@@ -524,14 +513,11 @@ def run_deep_speech(_):
             )
         )
             
-
-            # If some evaluation threshold is met
-            if model_helpers.past_stop_threshold(
-                flags_obj.wer_threshold, eval_results[_WER_KEY]
-            ):
-                break
-
-        """
+        # If some evaluation threshold is met
+        if model_helpers.past_stop_threshold(
+            flags_obj.wer_threshold, eval_results[_WER_KEY]
+        ):
+            break
 
 
 
