@@ -93,7 +93,7 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
     )
 
 
-def evaluate_model(estimator, speech_labels, entries, input_fn_eval):
+def evaluate_model(estimator, speech_labels, csv_file, input_fn_eval):
     """Evaluate the model performance using WER anc CER as metrics.
   WER: Word Error Rate
   CER: Character Error Rate
@@ -113,7 +113,17 @@ def evaluate_model(estimator, speech_labels, entries, input_fn_eval):
     probs = [pred["probabilities"] for pred in predictions]
 
     num_of_examples = len(probs)
-    targets = [entry[2] for entry in entries]  # The ground truth transcript
+
+    #Extracting transcripts from csv file::::
+    with open(file_name, 'r', encoding='utf-8') as f:
+        lines = f.read().splitlines()
+    # Skip the csv header in lines[0].
+    lines = lines[1:]
+    # The metadata file is tab separated.
+    lines = [line.split("\t", 2) for line in lines]
+    lines = [tuple(line) for line in lines]
+
+    targets = [line[2] for line in lines]  # The ground truth transcript
 
     total_wer, total_cer = 0, 0
     greedy_decoder = decoder.DeepSpeechDecoder(speech_labels)
@@ -229,8 +239,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_modellayers5-nodes10-iterations50-steps1000/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_modellayers5-nodes10-iterations50-steps1000/",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model-layers1-nodes10-iterations50-steps1000-eval/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model-layers1-nodes10-iterations50-steps1000-eval/",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -250,11 +260,11 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 2, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 1000, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 10, "Total number of training steps.")
     
-    tf.flags.DEFINE_integer("eval_steps", 10,
+    tf.flags.DEFINE_integer("eval_steps", 8,
                         "Total number of evaluation steps. If `0`, evaluation "
                         "after training is skipped.")
 
@@ -337,7 +347,7 @@ def define_deep_speech_flags():
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        default=5,
+        default=1,
         #default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
@@ -474,6 +484,9 @@ def run_deep_speech(_):
         ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir, max_features_length, max_labels_length)
         return ds
        
+    
+    eval_csv_file = os.path.join(os.path.dirname(__file__), "data/dev.csv")
+
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
     for cycle_index in range(total_training_cycle):
@@ -501,7 +514,7 @@ def run_deep_speech(_):
         eval_results = evaluate_model(
             estimator,
             speech_labels,
-            eval_speech_dataset.entries,
+            eval_csv_file,
             input_fn_eval,
         )
 

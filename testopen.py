@@ -7,21 +7,21 @@ import os
 from absl import app as absl_app
 from absl import flags
 import tensorflow as tf
-import logging
-import cloudstorage as gcs
-import webapp2
-
-from google.appengine.api import app_identity
 
 
+#Extracting transcripts from csv file::::
+file_name = os.path.join(os.path.dirname(__file__), "data/dev.csv")
+with open(file_name, 'r', encoding='utf-8') as f:
+    lines = f.read().splitlines()
+# Skip the csv header in lines[0].
+lines = lines[1:]
+# The metadata file is tab separated.
+lines = [line.split("\t", 2) for line in lines]
+lines = [tuple(line) for line in lines]
+print(lines[0])
+print(lines[1])
 
-def read_file(self, filename):
-  self.response.write('Reading the full file contents:\n')
-
-  gcs_file = gcs.open(filename)
-  contents = gcs_file.read()
-  print(contents)
-  gcs_file.close()
-
-read_file("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
+targets = [line[2] for line in lines]  # The ground truth transcript
+print(targets[0])
+print(targets[1])
 
