@@ -458,7 +458,7 @@ def run_deep_speech(_):
     #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
 
     def input_fn_train(params):
-        with open(flags_objs.train_data_lengths, 'r') as f:
+        with open(flags_obj.train_data_lengths, 'r') as f:
             content = f.readlines()
         content = [x.strip() for x in content]
         max_features_length = content[0]
@@ -469,7 +469,7 @@ def run_deep_speech(_):
         return ds
 
     #def input_fn_eval(params):
-    #    with open(flags_objs.eval_data_lengths, 'r') as f:
+    #    with open(flags_obj.eval_data_lengths, 'r') as f:
     #        content = f.readlines()
     #    content = [x.strip() for x in content]
     #    max_features_length = content[0]
