@@ -337,7 +337,7 @@ def define_deep_speech_flags():
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        default=1,
+        default=5,
         #default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
@@ -388,13 +388,12 @@ def run_deep_speech(_):
     """Run deep speech training and eval loop."""
     tf.set_random_seed(flags_obj.seed)
 
-    #TODO handle num_classes
     # Number of label classes. Label string is "[a-z]' -"
     text_featurizer = featurizer.TextFeaturizer(
             vocab_file=_VOCABULARY_FILE
         )
-    num_classes = len(text_featurizer.speech_labels)
-    #num_classes = 32
+    speech_labels = text_featurizer.speech_labels
+    num_classes = len(speech_labels)
 
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
@@ -451,12 +450,6 @@ def run_deep_speech(_):
         flags_obj.hooks, model_dir=flags_obj.model_dir, batch_size=flags_obj.batch_size
     )
 
-    #per_device_batch_size = distribution_utils.per_device_batch_size(
-    #    flags_obj.batch_size, flags_obj.num_shards
-    #)
-    #TODO generate dataset moved into pre_process_tuda to be called only once
-    #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
-
     def input_fn_train(params):
         #with open(flags_obj.train_data_lengths, 'r') as f:
         #    content = f.readlines()
@@ -470,14 +463,16 @@ def run_deep_speech(_):
         ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir, max_features_length, max_labels_length)
         return ds
 
-    #def input_fn_eval(params):
-    #    with open(flags_obj.eval_data_lengths, 'r') as f:
-    #        content = f.readlines()
-    #    content = [x.strip() for x in content]
-    #    max_features_length = content[0]
-    #    max_labels_length = content[1]
-    #    ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir, max_features_length, max_labels_length)
-    #    return ds
+    def input_fn_eval(params):
+        #    with open(flags_obj.eval_data_lengths, 'r') as f:
+        #        content = f.readlines()
+        #    content = [x.strip() for x in content]
+        #    max_features_length = content[0]
+        #    max_labels_length = content[1]
+        max_features_length = 2908
+        max_labels_length = 478
+        ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir, max_features_length, max_labels_length)
+        return ds
        
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
@@ -488,47 +483,55 @@ def run_deep_speech(_):
 
         #TODO data shuffling
         # Perform batch_wise dataset shuffling
-    '''
-    train_speech_dataset.entries = dataset.batch_wise_dataset_shuffle(
-        train_speech_dataset.entries,
-        cycle_index,
-        flags_obj.sortagrad,
-        flags_obj.batch_size,
-    )
-    '''
+        '''
+        train_speech_dataset.entries = dataset.batch_wise_dataset_shuffle(
+            train_speech_dataset.entries,
+            cycle_index,
+            flags_obj.sortagrad,
+            flags_obj.batch_size,
+        )
+        '''
 
-    estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
+        tf.logging.info("***** Running training *****")
+        estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
         # Evaluation
-    tf.logging.info("\n\n\nStarting to evaluate...")
-    """
-    eval_results = evaluate_model(
-        estimator,
-        eval_speech_dataset.speech_labels,
-        eval_speech_dataset.entries,
-        input_fn_eval,
-    )
+        tf.logging.info("***** Running evaluation *****")
+    
+        #result = estimator.evaluate(
+        #    input_fn=input_fn_eval, steps=flags_obj.eval_steps)
 
-    # Log the WER and CER results.
-    benchmark_logger.log_evaluation_result(eval_results)
-    tf.logging.info(
-        "Iteration {}: WER = {:.2f}, CER = {:.2f}".format(
-            cycle_index + 1, eval_results[_WER_KEY], eval_results[_CER_KEY]
-        )
-    )
-        
+        #tf.logging.info("***** Eval results *****")
+        #for key in sorted(result.keys()):
+        #    tf.logging.info("  %s = %s", key, str(result[key]))
 
-        # If some evaluation threshold is met
-        if model_helpers.past_stop_threshold(
-            flags_obj.wer_threshold, eval_results[_WER_KEY]
-        ):
-            break
+
 
         """
-        #eval_results = estimator.predict(input_fn=input_fn_eval)
-        #for el in eval_results: print(el)
-        #tf.logging.info("END...\n\n\n\n")
+        eval_results = evaluate_model(
+            estimator,
+            speech_labels,
+            eval_speech_dataset.entries,
+            input_fn_eval,
+        )
 
+        
+        # Log the WER and CER results.
+        benchmark_logger.log_evaluation_result(eval_results)
+        tf.logging.info(
+            "Iteration {}: WER = {:.2f}, CER = {:.2f}".format(
+                cycle_index + 1, eval_results[_WER_KEY], eval_results[_CER_KEY]
+            )
+        )
+            
+
+            # If some evaluation threshold is met
+            if model_helpers.past_stop_threshold(
+                flags_obj.wer_threshold, eval_results[_WER_KEY]
+            ):
+                break
+
+        """
 
 
 
