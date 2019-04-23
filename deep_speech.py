@@ -199,14 +199,14 @@ def model_fn(features, labels, mode, params):
     global_step = tf.train.get_or_create_global_step()
     minimize_op = optimizer.minimize(loss, global_step=global_step)
 
-    #update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     
-    # Create the train_op that groups both minimize_ops and update_ops
-    #train_op = tf.group(minimize_op, update_ops) 
+    Create the train_op that groups both minimize_ops and update_ops
+    train_op = tf.group(minimize_op, update_ops) 
 
     
 
-    return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=minimize_op)
+    return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
 
 
@@ -252,9 +252,9 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 2, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 1000, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 10, "Total number of training steps.")
     
     tf.flags.DEFINE_integer("eval_steps", 10,
                         "Total number of evaluation steps. If `0`, evaluation "
@@ -332,15 +332,15 @@ def define_deep_speech_flags():
     # RNN related flags
     flags.DEFINE_integer(
         name="rnn_hidden_size",
-        #default=10,
-        default=800,
+        default=10,
+        #default=800,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        #default=1,
-        default=5,
+        default=1,
+        #default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 
