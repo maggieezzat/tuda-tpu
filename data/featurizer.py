@@ -103,9 +103,11 @@ class TextFeaturizer(object):
         self.index_to_token = {}
         self.speech_labels = ""
         index = 0
+        print(lines[0])
         for line in lines:
             line = line[:-1]  # Strip the '\n' char.
             if line.startswith("#"):
+                print(line)
                 # Skip from reading comment line.
                 continue
             self.token_to_index[line] = index

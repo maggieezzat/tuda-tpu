@@ -26,6 +26,7 @@ import tensorflow as tf
 # pylint: enable=g-bad-import-order
 
 import data.dataset as dataset
+import data.featurizer as featurizer
 import optimization 
 import decoder
 import deep_speech_model
@@ -37,6 +38,7 @@ from official.utils.misc import model_helpers
 
 # Default vocabulary file
 _VOCABULARY_FILE = os.path.join(os.path.dirname(__file__), "data/vocabulary.txt")
+_GS_BUCKET = "gs://deep_speech_bucket/german-speechdata-package-v2/"
 # Evaluation metrics
 _WER_KEY = "WER"
 _CER_KEY = "CER"
@@ -79,14 +81,6 @@ def ctc_loss(label_length, ctc_input_length, labels, logits):
     
     y_pred = tf.log(tf.transpose(logits, perm=[1, 0, 2]) + tf.keras.backend.epsilon())
 
-    """
-    tf.nn.ctc_loss(
-            labels=labels,
-            inputs=y_pred,
-            sequence_length=ctc_input_length,
-            ignore_longer_outputs_than_inputs=True,
-        ),
-    """
     return tf.expand_dims(
         tf.nn.ctc_loss_v2(
             labels=labels,
@@ -215,24 +209,193 @@ def model_fn(features, labels, mode, params):
     return tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=loss, train_op=minimize_op)
 
 
+
+def define_deep_speech_flags():
+    
+    """Add flags for run_deep_speech."""
+    
+    # Add common flags
+    flags_core.define_base(
+            data_dir=False  # we use train_data_dir and eval_data_dir instead
+        )
+
+    flags_core.define_performance(
+        num_parallel_calls=False,
+        inter_op=False,
+        intra_op=False,
+        synthetic_data=False,
+        max_train_steps=False,
+        dtype=False,
+    )
+    flags_core.define_benchmark()
+    flags.adopt_module_key_flags(flags_core)
+
+    flags_core.set_defaults(
+        model_dir = os.path.join(_GS_BUCKET, "deep_speech_model/"),
+        export_dir= os.path.join(_GS_BUCKET, "deep_speech_saved_model/"),
+        train_epochs=1,
+        batch_size=8,
+        hooks="",
+    )
+    
+    tf.flags.DEFINE_string(
+        "tpu", default=None,
+        help="The Cloud TPU to use for training. This should be either the name "
+        "used when creating the Cloud TPU, or a grpc://ip.address.of.tpu:8470 "
+        "url.")
+    
+    tf.flags.DEFINE_string(
+        "tpu_zone", default="us-central1-f",
+        help="[Optional] GCE zone where the Cloud TPU is located in. If not "
+        "specified, we will attempt to automatically detect the GCE project from "
+        "metadata.")
+
+    tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
+
+    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
+
+    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
+    
+    tf.flags.DEFINE_integer("eval_steps", 10,
+                        "Total number of evaluation steps. If `0`, evaluation "
+                        "after training is skipped.")
+
+    tf.flags.DEFINE_integer("num_shards", 8, "Number of shards (TPU chips).")
+
+
+    # Deep speech flags
+    flags.DEFINE_integer(
+        name="seed", default=1, help=flags_core.help_wrap("The random seed.")
+    )
+
+    #TODO
+    flags.DEFINE_string(
+        name="train_data_dir",
+        default=os.path.join(_GS_BUCKET, "test.tfrecords"),
+        help=flags_core.help_wrap("The tfrecords file path of train dataset."),
+    )
+
+    #TODO
+    flags.DEFINE_string(
+        name="eval_data_dir",
+        default=os.path.join(_GS_BUCKET, "dev.tfrecords"),
+        help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
+    )
+
+    #TODO
+    flags.DEFINE_string(
+        name="train_data_lengths",
+        default=os.path.join(_GS_BUCKET, "test_set_lengths.txt"),
+        help=flags_core.help_wrap("The file that contains max_features_length and max_labels_length for train data set."),
+    )
+
+    #TODO
+    flags.DEFINE_string(
+        name="eval_data_lengths",
+        default=os.path.join(_GS_BUCKET, "dev_set_lengths.txt"),
+        help=flags_core.help_wrap("The file that contains max_features_length and max_labels_length for test data set."),
+    )
+
+    flags.DEFINE_bool(
+        name="sortagrad",
+        default=True,
+        help=flags_core.help_wrap(
+            "If true, sort examples by audio length and perform no "
+            "batch_wise shuffling for the first epoch."
+        ),
+    )
+
+    flags.DEFINE_integer(
+        name="sample_rate",
+        default=16000,
+        help=flags_core.help_wrap("The sample rate for audio."),
+    )
+
+    flags.DEFINE_integer(
+        name="window_ms",
+        default=20,
+        help=flags_core.help_wrap("The frame length for spectrogram."),
+    )
+
+    flags.DEFINE_integer(
+        name="stride_ms", default=10, help=flags_core.help_wrap("The frame step.")
+    )
+
+    flags.DEFINE_string(
+        name="vocabulary_file",
+        default=_VOCABULARY_FILE,
+        help=flags_core.help_wrap("The file path of vocabulary file."),
+    )
+
+    # RNN related flags
+    flags.DEFINE_integer(
+        name="rnn_hidden_size",
+        default=50,
+        #default=800,
+        help=flags_core.help_wrap("The hidden size of RNNs."),
+    )
+
+    flags.DEFINE_integer(
+        name="rnn_hidden_layers",
+        default=2,
+        #default=5,
+        help=flags_core.help_wrap("The number of RNN layers."),
+    )
+
+    flags.DEFINE_bool(
+        name="use_bias",
+        default=True,
+        help=flags_core.help_wrap("Use bias in the last fully-connected layer"),
+    )
+
+    flags.DEFINE_bool(
+        name="is_bidirectional",
+        default=True,
+        help=flags_core.help_wrap("If rnn unit is bidirectional"),
+    )
+
+    flags.DEFINE_enum(
+        name="rnn_type",
+        default="gru",
+        enum_values=deep_speech_model.SUPPORTED_RNNS.keys(),
+        case_sensitive=False,
+        help=flags_core.help_wrap("Type of RNN cell."),
+    )
+
+    # Training related flags
+    flags.DEFINE_float(
+        name="learning_rate",
+        default=5e-4,
+        help=flags_core.help_wrap("The initial learning rate."),
+    )
+    
+
+    # Evaluation metrics threshold
+    flags.DEFINE_float(
+        name="wer_threshold",
+        default=None,
+        help=flags_core.help_wrap(
+            "If passed, training will stop when the evaluation metric WER is "
+            "greater than or equal to wer_threshold. For libri speech dataset "
+            "the desired wer_threshold is 0.23 which is the result achieved by "
+            "MLPerf implementation."
+        ),
+    )
+
+
+
 def run_deep_speech(_):
     """Run deep speech training and eval loop."""
     tf.set_random_seed(flags_obj.seed)
-    # Data preprocessing
-    tf.logging.info("Data preprocessing...")
-    
-    #TODO handle generate_dataset only once in preprocess_tuda_data
-    #train_speech_dataset = dataset.generate_dataset(flags_obj.train_data_dir)
-    eval_speech_dataset = dataset.generate_dataset("gs://deep_speech_bucket/german-speechdata-package-v2/test.csv")
 
     #TODO handle num_classes
     # Number of label classes. Label string is "[a-z]' -"
-    #num_classes = len(train_speech_dataset.speech_labels)
-    num_classes = 32
+    text_featurizer = featurizer.TextFeaturizer(
+            vocab_file=_VOCABULARY_FILE
+        )
+    num_classes = len(text_featurizer.speech_labels)
+    #num_classes = 32
 
-    # Use distribution strategy for multi-gpu training
-    num_gpus = flags_core.get_num_gpus(flags_obj)
-    #distribution_strategy = distribution_utils.get_distribution_strategy(num_gpus)
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
       flags_obj.tpu,
@@ -288,19 +451,31 @@ def run_deep_speech(_):
         flags_obj.hooks, model_dir=flags_obj.model_dir, batch_size=flags_obj.batch_size
     )
 
-    per_device_batch_size = distribution_utils.per_device_batch_size(
-        flags_obj.batch_size, flags_obj.num_shards
-    )
+    #per_device_batch_size = distribution_utils.per_device_batch_size(
+    #    flags_obj.batch_size, flags_obj.num_shards
+    #)
     #TODO generate dataset moved into pre_process_tuda to be called only once
     #so flags train_data_dir and eval_data_dir should point to tf_records files and not to csv files
 
     def input_fn_train(params):
-        ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir)
+        with open(flags_objs.train_data_lengths, 'r') as f:
+            content = f.readlines()
+        content = [x.strip() for x in content]
+        max_features_length = content[0]
+        max_labels_length = content[1]
+        print(max_features_length)
+        print(max_labels_length)
+        ds = dataset.input_fn(params['batch_size'], flags_obj.train_data_dir, max_features_length, max_labels_length)
         return ds
 
-    def input_fn_eval(params):
-        ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir)
-        return ds
+    #def input_fn_eval(params):
+    #    with open(flags_objs.eval_data_lengths, 'r') as f:
+    #        content = f.readlines()
+    #    content = [x.strip() for x in content]
+    #    max_features_length = content[0]
+    #    max_labels_length = content[1]
+    #    ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir, max_features_length, max_labels_length)
+    #    return ds
        
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
@@ -311,34 +486,34 @@ def run_deep_speech(_):
 
         #TODO data shuffling
         # Perform batch_wise dataset shuffling
-        '''
-        train_speech_dataset.entries = dataset.batch_wise_dataset_shuffle(
-            train_speech_dataset.entries,
-            cycle_index,
-            flags_obj.sortagrad,
-            flags_obj.batch_size,
-        )
-        '''
+    '''
+    train_speech_dataset.entries = dataset.batch_wise_dataset_shuffle(
+        train_speech_dataset.entries,
+        cycle_index,
+        flags_obj.sortagrad,
+        flags_obj.batch_size,
+    )
+    '''
 
-        estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
+    estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
         # Evaluation
-        tf.logging.info("\n\n\nStarting to evaluate...")
-        """
-        eval_results = evaluate_model(
-            estimator,
-            eval_speech_dataset.speech_labels,
-            eval_speech_dataset.entries,
-            input_fn_eval,
-        )
+    #    tf.logging.info("\n\n\nStarting to evaluate...")
+    """
+    eval_results = evaluate_model(
+        estimator,
+        eval_speech_dataset.speech_labels,
+        eval_speech_dataset.entries,
+        input_fn_eval,
+    )
 
-        # Log the WER and CER results.
-        benchmark_logger.log_evaluation_result(eval_results)
-        tf.logging.info(
-            "Iteration {}: WER = {:.2f}, CER = {:.2f}".format(
-                cycle_index + 1, eval_results[_WER_KEY], eval_results[_CER_KEY]
-            )
+    # Log the WER and CER results.
+    benchmark_logger.log_evaluation_result(eval_results)
+    tf.logging.info(
+        "Iteration {}: WER = {:.2f}, CER = {:.2f}".format(
+            cycle_index + 1, eval_results[_WER_KEY], eval_results[_CER_KEY]
         )
+    )
         
 
         # If some evaluation threshold is met
@@ -348,174 +523,12 @@ def run_deep_speech(_):
             break
 
         """
-        eval_results = estimator.predict(input_fn=input_fn_eval)
-        for el in eval_results: print(el)
-        tf.logging.info("END...\n\n\n\n")
+        #eval_results = estimator.predict(input_fn=input_fn_eval)
+        #for el in eval_results: print(el)
+        #tf.logging.info("END...\n\n\n\n")
 
 
 
-def define_deep_speech_flags():
-    
-    """Add flags for run_deep_speech."""
-    
-    # Add common flags
-    flags_core.define_base(
-            data_dir=False  # we use train_data_dir and eval_data_dir instead
-        )
-
-    flags_core.define_performance(
-        num_parallel_calls=False,
-        inter_op=False,
-        intra_op=False,
-        synthetic_data=False,
-        max_train_steps=False,
-        dtype=False,
-    )
-    flags_core.define_benchmark()
-    flags.adopt_module_key_flags(flags_core)
-
-    flags_core.set_defaults(
-        #model_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_model/",
-        #export_dir= "/home/maggieezzat9/TUDA/german-speechdata-package-v2/deep_speech_saved_model/",
-        #model_dir= "/content/deep_speech_model/",
-        #export_dir= "/content/deep_speech_saved_model/",
-        model_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model2/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model2/",
-        train_epochs=1,
-        batch_size=8,
-        hooks="",
-    )
-    
-    tf.flags.DEFINE_string(
-        "tpu", default=None,
-        help="The Cloud TPU to use for training. This should be either the name "
-        "used when creating the Cloud TPU, or a grpc://ip.address.of.tpu:8470 "
-        "url.")
-    
-    tf.flags.DEFINE_string(
-        "tpu_zone", default="us-central1-f",
-        help="[Optional] GCE zone where the Cloud TPU is located in. If not "
-        "specified, we will attempt to automatically detect the GCE project from "
-        "metadata.")
-
-    tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
-
-    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
-
-    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
-    
-    tf.flags.DEFINE_integer("eval_steps", 10,
-                        "Total number of evaluation steps. If `0`, evaluation "
-                        "after training is skipped.")
-
-    tf.flags.DEFINE_integer("num_shards", 8, "Number of shards (TPU chips).")
-
-
-    # Deep speech flags
-    flags.DEFINE_integer(
-        name="seed", default=1, help=flags_core.help_wrap("The random seed.")
-    )
-
-    #TODO
-    flags.DEFINE_string(
-        name="train_data_dir",
-        #default= '/content/records_test.csv',
-        #default= '/content/records_test.csv',
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/test1024.tfrecords",
-        help=flags_core.help_wrap("The tfrecords file path of train dataset."),
-    )
-
-    #TODO
-    flags.DEFINE_string(
-        name="eval_data_dir",
-        #default= '/content/records_test.csv',
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/test1024.tfrecords",
-        help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
-    )
-
-    flags.DEFINE_bool(
-        name="sortagrad",
-        default=True,
-        help=flags_core.help_wrap(
-            "If true, sort examples by audio length and perform no "
-            "batch_wise shuffling for the first epoch."
-        ),
-    )
-
-    flags.DEFINE_integer(
-        name="sample_rate",
-        default=16000,
-        help=flags_core.help_wrap("The sample rate for audio."),
-    )
-
-    flags.DEFINE_integer(
-        name="window_ms",
-        default=20,
-        help=flags_core.help_wrap("The frame length for spectrogram."),
-    )
-
-    flags.DEFINE_integer(
-        name="stride_ms", default=10, help=flags_core.help_wrap("The frame step.")
-    )
-
-    flags.DEFINE_string(
-        name="vocabulary_file",
-        default=_VOCABULARY_FILE,
-        help=flags_core.help_wrap("The file path of vocabulary file."),
-    )
-
-    # RNN related flags
-    flags.DEFINE_integer(
-        name="rnn_hidden_size",
-        default=50,
-        help=flags_core.help_wrap("The hidden size of RNNs."),
-    )
-
-    flags.DEFINE_integer(
-        name="rnn_hidden_layers",
-        default=2,
-        help=flags_core.help_wrap("The number of RNN layers."),
-    )
-
-    flags.DEFINE_bool(
-        name="use_bias",
-        default=True,
-        help=flags_core.help_wrap("Use bias in the last fully-connected layer"),
-    )
-
-    flags.DEFINE_bool(
-        name="is_bidirectional",
-        default=True,
-        help=flags_core.help_wrap("If rnn unit is bidirectional"),
-    )
-
-    flags.DEFINE_enum(
-        name="rnn_type",
-        default="gru",
-        enum_values=deep_speech_model.SUPPORTED_RNNS.keys(),
-        case_sensitive=False,
-        help=flags_core.help_wrap("Type of RNN cell."),
-    )
-
-    # Training related flags
-    flags.DEFINE_float(
-        name="learning_rate",
-        default=5e-4,
-        help=flags_core.help_wrap("The initial learning rate."),
-    )
-    
-
-    # Evaluation metrics threshold
-    flags.DEFINE_float(
-        name="wer_threshold",
-        default=None,
-        help=flags_core.help_wrap(
-            "If passed, training will stop when the evaluation metric WER is "
-            "greater than or equal to wer_threshold. For libri speech dataset "
-            "the desired wer_threshold is 0.23 which is the result achieved by "
-            "MLPerf implementation."
-        ),
-    )
 
 
 def main(_):

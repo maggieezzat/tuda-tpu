@@ -32,8 +32,8 @@ import num2words
 
 
 download_dir = "/home/maggieezzat9/TUDA/"
-directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
-#directory = "E:\Tuda-v2-unmodified.tar\Tuda-v2-unmodified\german-speechdata-package-v2"
+#directory = "/home/maggieezzat9/TUDA/german-speechdata-package-v2"
+directory = "E:\Tuda-v2-unmodified.tar\Tuda-v2-unmodified\german-speechdata-package-v2"
 tuda_url = "http://speech.tools/kaldi_tuda_de/german-speechdata-package-v2.tar.gz"
 
 # =============================== Vocab ===================================
