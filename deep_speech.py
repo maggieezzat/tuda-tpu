@@ -229,7 +229,7 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model/",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_modellayers5-nodes10-iterations50-steps1000/",
         export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model/",
         train_epochs=1,
         batch_size=8,
