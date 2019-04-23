@@ -201,7 +201,7 @@ def model_fn(features, labels, mode, params):
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     
-    Create the train_op that groups both minimize_ops and update_ops
+    #Create the train_op that groups both minimize_ops and update_ops
     train_op = tf.group(minimize_op, update_ops) 
 
     
