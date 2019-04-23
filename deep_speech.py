@@ -285,7 +285,7 @@ def define_deep_speech_flags():
     #TODO
     flags.DEFINE_string(
         name="train_data_lengths",
-        default=os.path.join(_GS_BUCKET, "test_set_lengths.txt"),
+        default=os.path.join(_GS_BUCKET, "test_set_lengths"),
         help=flags_core.help_wrap("The file that contains max_features_length and max_labels_length for train data set."),
     )
 
