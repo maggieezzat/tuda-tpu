@@ -235,8 +235,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-l2-n800-i10-s100-noeval/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-l2-n800-i10-s100-noeval",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-l2-n800-i20-s1000-noeval/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-l2-n800-i20-s1000-noeval",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -256,9 +256,9 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 10, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 20, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 1000, "Total number of training steps.")
     
     tf.flags.DEFINE_integer("eval_steps", 8,
                         "Total number of evaluation steps. If `0`, evaluation "
