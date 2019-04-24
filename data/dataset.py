@@ -267,7 +267,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
                   'input_length': _int64_feature([max_features_length]),
                   'label_length': _int64_feature([max_labels_length]),
               }))
-      print("Writing File: ", str(index), "/", str(len(data_entries)), end='\r')
+      print("Writing File: ", audio_file, "/", str(len(data_entries)), end='\r')
     writer.write(example.SerializeToString())
     return (max_features_length, max_labels_length)
   
