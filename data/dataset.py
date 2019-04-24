@@ -248,6 +248,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   featuresA =[]
   labelsA = []
 
+
   for audio_file, _, transcript in data_entries:
     features = _preprocess_audio(
         audio_file, audio_featurizer, feature_normalize
@@ -259,9 +260,10 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
       max_features_length = len(features)
     if(len(labels) > max_labels_length):
       max_labels_length = len(labels)
+    print("Max Features Length So far : " + str(max_features_length) + "\r")
 
-    featuresA.append(features)
-    labelsA.append(labels)
+    #featuresA.append(features)
+    #labelsA.append(labels)
 
   #To make the  character '$' the end of sentence   
   max_labels_length +=1
@@ -270,7 +272,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   print(max_features_length)
   print(max_labels_length)
   print("\n\n\n\n\n\n\n\n\n")
-
+  '''
   with tf.python_io.TFRecordWriter(tf_records_path) as writer:
     for index in range(len(featuresA)):
       #pad features to max_features_length
@@ -293,7 +295,8 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
 
     writer.write(example.SerializeToString())
     return (max_features_length, max_labels_length)
-
+  '''
+  print("Done")
 
 def _int64_feature(value):
   return tf.train.Feature(int64_list=tf.train.Int64List(value=list(value)))
@@ -379,8 +382,9 @@ def main(_):
 
     #generating train tfrecords file and train lengths file
     train_ds = generate_dataset(train_csv)
-    (max_features_train, max_labels_train) = convert_to_TF(train_ds, train_tfrecords)
-    write_features_and_labels_lengths(max_features_train, max_labels_train, train_set_lengths)
+    #(max_features_train, max_labels_train) = 
+    convert_to_TF(train_ds, train_tfrecords)
+    #write_features_and_labels_lengths(max_features_train, max_labels_train, train_set_lengths)
 
     #generating test tfrecords file and test lengths file
     #test_ds = generate_dataset(test_csv)
