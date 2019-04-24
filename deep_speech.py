@@ -18,17 +18,11 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-
-# pylint: disable=g-bad-import-order
 from absl import app as absl_app
 from absl import flags
 import tensorflow as tf
-# pylint: enable=g-bad-import-order
 
-#import data.dataset as dataset
 from data import dataset
-from data import featurizer
-#import data.featurizer as featurizer
 import optimization 
 import decoder
 import deep_speech_model
@@ -241,8 +235,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-eval200recs/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-eval200recs/",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-noeval/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-noeval",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -262,9 +256,9 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 10, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 1000, "Total number of training steps.")
     
     tf.flags.DEFINE_integer("eval_steps", 8,
                         "Total number of evaluation steps. If `0`, evaluation "
@@ -349,8 +343,8 @@ def define_deep_speech_flags():
 
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
-        default=1,
-        #default=5,
+        #default=1,
+        default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 
@@ -401,10 +395,7 @@ def run_deep_speech(_):
     tf.set_random_seed(flags_obj.seed)
 
     # Number of label classes. Label string is "[a-z]' -"
-    text_featurizer = featurizer.TextFeaturizer(
-            vocab_file=_VOCABULARY_FILE
-        )
-    speech_labels = text_featurizer.speech_labels
+    speech_labels = dataset.export_speech_labels()
     num_classes = len(speech_labels)
 
     eval_csv_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/dev.csv")
@@ -487,8 +478,6 @@ def run_deep_speech(_):
         ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir, max_features_length, max_labels_length)
         return ds
        
-    
-    
 
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
@@ -514,11 +503,13 @@ def run_deep_speech(_):
         tf.logging.info("***** Running training *****")
         estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
+        """
         # Evaluation
         tf.logging.info("***** Running evaluation *****")
         tf.logging.info("***** Running evaluation *****")
         tf.logging.info("***** Running evaluation *****")
         tf.logging.info("***** Running evaluation *****")
+        
         
         eval_results = evaluate_model(
             estimator,
@@ -541,7 +532,7 @@ def run_deep_speech(_):
         ):
             break
 
-
+        """
 
 
 def main(_):
