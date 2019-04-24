@@ -290,7 +290,7 @@ def define_deep_speech_flags():
     flags.DEFINE_string(
         name="eval_data_dir",
         #default=os.path.join(_GS_BUCKET, "dev.tfrecords"),
-        default="gs://deep_speech_bucket/german-speechdata-package-v2/dev.tfrecords",
+        default="gs://deep_speech_bucket/german-speechdata-package-v2/dev_short.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
     )
 
