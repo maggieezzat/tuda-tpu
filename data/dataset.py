@@ -25,7 +25,8 @@ import soundfile
 import os
 import tensorflow as tf
 from absl import app as absl_app
-import featurizer
+#import featurizer
+import data.featurizer as featurizer
 
 # Default vocabulary file
 _VOCABULARY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vocabulary.txt")
