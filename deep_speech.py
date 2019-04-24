@@ -413,15 +413,7 @@ def run_deep_speech(_):
     speech_labels = text_featurizer.speech_labels
     num_classes = len(speech_labels)
 
-    #print("\n\n\n\n\n\\n\n\n\n\n")
-    #print(speech_labels)
-    #print(flags_obj.epochs_between_evals)
-    #print("\n\n\n\n\n\\n\n\n\n\n")
-
     eval_csv_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/dev.csv")
-
-    
-    #exit(0)
 
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
