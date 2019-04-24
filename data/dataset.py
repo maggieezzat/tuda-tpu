@@ -248,7 +248,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   featuresA =[]
   labelsA = []
 
-  for audio_file, _, transcript in data_entries[:200]:
+  for audio_file, _, transcript in data_entries:
     features = _preprocess_audio(
         audio_file, audio_featurizer, feature_normalize
     )
