@@ -269,7 +269,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
                   'label_length': _int64_feature([max_labels_length]),
               }))
       print("Writing File: ", audio_file, "/", str(len(data_entries)))
-      print(str(iopo) + "   :   "+ str(example.SerializeToString()))
+      print(str(iopo) + "   :   "+ str(len(example.SerializeToString())))
       iopo += 1
       if(iopo >= 2):
         exit(0)
