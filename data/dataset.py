@@ -245,6 +245,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   print('Writing ', tf_records_path)
   max_features_length = 5909
   max_labels_length = 806
+  iopo = 0
 
   with tf.python_io.TFRecordWriter(tf_records_path) as writer:
     for audio_file, _, transcript in data_entries:
@@ -267,7 +268,11 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
                   'input_length': _int64_feature([max_features_length]),
                   'label_length': _int64_feature([max_labels_length]),
               }))
-      print("Writing File: ", audio_file, "/", str(len(data_entries)), end='\r')
+      print("Writing File: ", audio_file, "/", str(len(data_entries)))
+      print(example.SerializeToString())
+      iopo += 1
+      if(iopo >= 2):
+        exit(1)
     writer.write(example.SerializeToString())
     return (max_features_length, max_labels_length)
   
