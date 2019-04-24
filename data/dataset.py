@@ -363,7 +363,7 @@ def export_speech_labels():
 def main(_):
 
     #defining some paths
-    #root_dir = "E:/TUDA/german-speechdata-package-v2/"
+    root_dir = "E:/TUDA/german-speechdata-package-v2/"
     #train_csv = os.path.join(root_dir, "train.csv")
     train_csv = "/content/train.csv"
     test_csv = os.path.join(root_dir, "test.csv")
