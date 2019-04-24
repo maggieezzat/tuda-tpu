@@ -363,22 +363,24 @@ def export_speech_labels():
 def main(_):
 
     #defining some paths
-    root_dir = "E:/TUDA/german-speechdata-package-v2/"
-    train_csv = os.path.join(root_dir, "train.csv")
+    #root_dir = "E:/TUDA/german-speechdata-package-v2/"
+    #train_csv = os.path.join(root_dir, "train.csv")
+    train_csv = "/content/train.csv"
     test_csv = os.path.join(root_dir, "test.csv")
     dev_csv = os.path.join(root_dir, "dev.csv")
-    train_tfrecords = os.path.join(root_dir, "train.tfrecords")
+    #train_tfrecords = os.path.join(root_dir, "train.tfrecords")
+    train_tfrecords = "/content/train.tfrecords"
     test_tfrecords = os.path.join(root_dir, "test.tfrecords")
     dev_tfrecords = os.path.join(root_dir, "dev.tfrecords")
-    train_set_lengths = os.path.join(root_dir, "train_set_lengths.txt")
+    train_set_lengths = "/content/train_set_lengths.txt"
     test_set_lengths = os.path.join(root_dir, "test_set_lengths.txt")
     dev_set_lengths = os.path.join(root_dir, "dev_set_lengths.txt")
 
 
     #generating train tfrecords file and train lengths file
-    #train_ds = generate_dataset(train_csv)
-    #(max_features_train, max_labels_train) = convert_to_TF(train_ds, train_tfrecords)
-    #write_features_and_labels_lengths(max_features_train, max_labels_train, train_set_lengths)
+    train_ds = generate_dataset(train_csv)
+    (max_features_train, max_labels_train) = convert_to_TF(train_ds, train_tfrecords)
+    write_features_and_labels_lengths(max_features_train, max_labels_train, train_set_lengths)
 
     #generating test tfrecords file and test lengths file
     #test_ds = generate_dataset(test_csv)
