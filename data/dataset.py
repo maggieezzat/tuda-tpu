@@ -26,7 +26,6 @@ import os
 import tensorflow as tf
 from absl import app as absl_app
 
-#import featurizer
 import data.featurizer as featurizer
 
 
