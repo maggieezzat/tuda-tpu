@@ -127,12 +127,6 @@ def evaluate_model(estimator, speech_labels, csv_file, input_fn_eval):
 
     targets = [line[2] for line in lines]  # The ground truth transcript
 
-    print("\n\n\n\n\n\n\n")
-    print(targets[0])
-    print(targets[1])
-    print(targets[2])
-    print("\n\n\n\n\n\n\n")
-
     total_wer, total_cer = 0, 0
     greedy_decoder = decoder.DeepSpeechDecoder(speech_labels)
     for i in range(num_of_examples):
@@ -247,8 +241,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-l1-n10-i2-s10-eval200recs/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-l1-n10-i2-s10-eval200recs/",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-eval200recs/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-eval200recs/",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -268,9 +262,9 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 2, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 10, "Number of iterations per TPU training loop.")
 
-    tf.flags.DEFINE_integer("train_steps", 10, "Total number of training steps.")
+    tf.flags.DEFINE_integer("train_steps", 100, "Total number of training steps.")
     
     tf.flags.DEFINE_integer("eval_steps", 8,
                         "Total number of evaluation steps. If `0`, evaluation "
@@ -413,16 +407,7 @@ def run_deep_speech(_):
     speech_labels = text_featurizer.speech_labels
     num_classes = len(speech_labels)
 
-    #print("\n\n\n\n\n\\n\n\n\n\n")
-    #print(speech_labels)
-    #print(flags_obj.epochs_between_evals)
-    #print("\n\n\n\n\n\\n\n\n\n\n")
-
     eval_csv_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/dev.csv")
-
-    
-    #exit(0)
-
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
       flags_obj.tpu,
@@ -524,9 +509,15 @@ def run_deep_speech(_):
         '''
 
         tf.logging.info("***** Running training *****")
+        tf.logging.info("***** Running training *****")
+        tf.logging.info("***** Running training *****")
+        tf.logging.info("***** Running training *****")
         estimator.train(input_fn=input_fn_train, hooks=train_hooks,max_steps=flags_obj.train_steps)
 
         # Evaluation
+        tf.logging.info("***** Running evaluation *****")
+        tf.logging.info("***** Running evaluation *****")
+        tf.logging.info("***** Running evaluation *****")
         tf.logging.info("***** Running evaluation *****")
         
         eval_results = evaluate_model(
