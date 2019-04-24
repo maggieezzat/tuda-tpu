@@ -245,10 +245,8 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   print('Writing ', tf_records_path)
   max_features_length = -1
   max_labels_length = -1
-  featuresA =[]
-  labelsA = []
 
-  for audio_file, _, transcript in data_entries[:200]:
+  for audio_file, _, transcript in data_entries:
     features = _preprocess_audio(
         audio_file, audio_featurizer, feature_normalize
     )
@@ -260,9 +258,6 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
     if(len(labels) > max_labels_length):
       max_labels_length = len(labels)
 
-    featuresA.append(features)
-    labelsA.append(labels)
-
   #To make the  character '$' the end of sentence   
   max_labels_length +=1
 
@@ -272,12 +267,19 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   print("\n\n\n\n\n\n\n\n\n")
 
   with tf.python_io.TFRecordWriter(tf_records_path) as writer:
-    for index in range(len(featuresA)):
-      #pad features to max_features_length
-      features = featuresA[index]
+    for audio_file, _, transcript in data_entries:
+      features = _preprocess_audio(
+          audio_file, audio_featurizer, feature_normalize
+      )
+      labels = featurizer.compute_label_feature(
+          transcript, text_featurizer.token_to_index
+      )
+      if(len(features) > max_features_length):
+        max_features_length = len(features)
+      if(len(labels) > max_labels_length):
+        max_labels_length = len(labels)
       features = pad_features(features, max_features_length, features[-10:])
       #pad labels to max_labels_length
-      labels = labelsA[index]
       labels = labels +([EOSindex] * (max_labels_length - len(labels)))
       #flatten features array
       flattened_features = [item for sublist_20ms in features for item in sublist_20ms]
@@ -289,9 +291,8 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
                   'input_length': _int64_feature([max_features_length]),
                   'label_length': _int64_feature([max_labels_length]),
               }))
-      print("Writing File: ", str(index), "/", str(len(data_entries)), end='\r')
-
-    writer.write(example.SerializeToString())
+      print("Writing File: ", audio_file, "/", str(len(data_entries)), end='\r')
+      writer.write(example.SerializeToString())
     return (max_features_length, max_labels_length)
 
 
