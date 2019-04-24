@@ -248,7 +248,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   iopo = 0
 
   with tf.python_io.TFRecordWriter(tf_records_path) as writer:
-    for audio_file, _, transcript in data_entries[300:]:
+    for audio_file, _, transcript in data_entries[:300]:
       features = _preprocess_audio(
           audio_file, audio_featurizer, feature_normalize
       )
