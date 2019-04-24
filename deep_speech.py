@@ -111,11 +111,6 @@ def evaluate_model(estimator, speech_labels, csv_file, input_fn_eval):
     # Get predictions
     predictions = estimator.predict(input_fn=input_fn_eval)
 
-    print("\n\n\n\n\n\n\n")
-    print(predictions[0])
-    print(predictions[1])
-    print(predictions[2])
-    print("\n\n\n\n\n\n\n")
     # Get probabilities of each predicted class
     probs = [pred["probabilities"] for pred in predictions]
 
@@ -418,9 +413,10 @@ def run_deep_speech(_):
     speech_labels = text_featurizer.speech_labels
     num_classes = len(speech_labels)
 
-    print("\n\n\n\n\n\\n\n\n\n\n")
-    print(speech_labels)
-    print("\n\n\n\n\n\\n\n\n\n\n")
+    #print("\n\n\n\n\n\\n\n\n\n\n")
+    #print(speech_labels)
+    #print(flags_obj.epochs_between_evals)
+    #print("\n\n\n\n\n\\n\n\n\n\n")
 
     eval_csv_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/dev.csv")
 
