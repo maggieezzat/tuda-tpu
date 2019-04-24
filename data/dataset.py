@@ -25,9 +25,7 @@ import soundfile
 import os
 import tensorflow as tf
 from absl import app as absl_app
-import data.featurizer as featurizer 
-#import featurizer
-#from data import featurizer
+import featurizer
 
 # Default vocabulary file
 _VOCABULARY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vocabulary.txt")
@@ -389,8 +387,6 @@ def main(_):
     #dev_ds = generate_dataset(dev_csv)
     #(max_features_dev, max_labels_dev) = convert_to_TF(dev_ds, dev_tfrecords)
     #write_features_and_labels_lengths(max_features_dev, max_labels_dev, dev_set_lengths)
-    lab = export_speech_labels()
-    print(lab)
 
 
 

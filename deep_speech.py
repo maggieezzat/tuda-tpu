@@ -235,8 +235,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-noeval/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-noeval",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-l5-n800-i20-s1000-noeval/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-l5-n800-i20-s1000-noeval",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -256,7 +256,7 @@ def define_deep_speech_flags():
 
     tf.flags.DEFINE_bool("use_tpu", True, "Use TPUs rather than plain CPUs")
 
-    tf.flags.DEFINE_integer("iterations", 50, "Number of iterations per TPU training loop.")
+    tf.flags.DEFINE_integer("iterations", 20, "Number of iterations per TPU training loop.")
 
     tf.flags.DEFINE_integer("train_steps", 1000, "Total number of training steps.")
     
@@ -275,7 +275,6 @@ def define_deep_speech_flags():
     #TODO
     flags.DEFINE_string(
         name="train_data_dir",
-        #default=os.path.join(_GS_BUCKET, "test.tfrecords"),
         default="gs://deep_speech_bucket/german-speechdata-package-v2/test.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of train dataset."),
     )
@@ -283,7 +282,6 @@ def define_deep_speech_flags():
     #TODO
     flags.DEFINE_string(
         name="eval_data_dir",
-        #default=os.path.join(_GS_BUCKET, "dev.tfrecords"),
         default="gs://deep_speech_bucket/german-speechdata-package-v2/dev_short.tfrecords",
         help=flags_core.help_wrap("The tfrecords file path of evaluation dataset."),
     )
@@ -336,8 +334,8 @@ def define_deep_speech_flags():
     # RNN related flags
     flags.DEFINE_integer(
         name="rnn_hidden_size",
-        default=10,
-        #default=800,
+        #default=10,
+        default=800,
         help=flags_core.help_wrap("The hidden size of RNNs."),
     )
 
