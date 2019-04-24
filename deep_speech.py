@@ -25,8 +25,10 @@ from absl import flags
 import tensorflow as tf
 # pylint: enable=g-bad-import-order
 
-import data.dataset as dataset
-import data.featurizer as featurizer
+#import data.dataset as dataset
+from data import dataset
+from data import featurizer
+#import data.featurizer as featurizer
 import optimization 
 import decoder
 import deep_speech_model
@@ -479,8 +481,8 @@ def run_deep_speech(_):
         #    content = [x.strip() for x in content]
         #    max_features_length = content[0]
         #    max_labels_length = content[1]
-        max_features_length = 2908
-        max_labels_length = 478
+        max_features_length = 375
+        max_labels_length = 69
         ds = dataset.input_fn(params['batch_size'], flags_obj.eval_data_dir, max_features_length, max_labels_length)
         return ds
        

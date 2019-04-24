@@ -27,6 +27,7 @@ import tensorflow as tf
 from absl import app as absl_app
 import data.featurizer as featurizer 
 #import featurizer
+#from data import featurizer
 
 # Default vocabulary file
 _VOCABULARY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vocabulary.txt")
@@ -247,7 +248,7 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   featuresA =[]
   labelsA = []
 
-  for audio_file, _, transcript in data_entries:
+  for audio_file, _, transcript in data_entries[:200]:
     features = _preprocess_audio(
         audio_file, audio_featurizer, feature_normalize
     )
