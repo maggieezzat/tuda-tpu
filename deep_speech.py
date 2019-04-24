@@ -407,6 +407,13 @@ def run_deep_speech(_):
     speech_labels = text_featurizer.speech_labels
     num_classes = len(speech_labels)
 
+    eval_csv_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/dev.csv")
+    print("\n\n\n\n\n\\n\n\n\n\n")
+    print(eval_csv_file)
+    print("\n\n\n\n\n\\n\n\n\n\n")
+    
+    #exit(0)
+
 
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
       flags_obj.tpu,
@@ -487,10 +494,7 @@ def run_deep_speech(_):
         return ds
        
     
-    eval_csv_file = os.path.join(os.path.dirname(__file__), "data/dev.csv")
-    print("\n\n\n\n\n\\n\n\n\n\n")
-    print(eval_csv_file)
-    print("\n\n\n\n\n\\n\n\n\n\n")
+    
 
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
