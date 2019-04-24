@@ -111,6 +111,11 @@ def evaluate_model(estimator, speech_labels, csv_file, input_fn_eval):
     # Get predictions
     predictions = estimator.predict(input_fn=input_fn_eval)
 
+    print("\n\n\n\n\n\n\n")
+    print(predictions[0])
+    print(predictions[1])
+    print(predictions[2])
+    print("\n\n\n\n\n\n\n")
     # Get probabilities of each predicted class
     probs = [pred["probabilities"] for pred in predictions]
 
@@ -126,6 +131,12 @@ def evaluate_model(estimator, speech_labels, csv_file, input_fn_eval):
     lines = [tuple(line) for line in lines]
 
     targets = [line[2] for line in lines]  # The ground truth transcript
+
+    print("\n\n\n\n\n\n\n")
+    print(targets[0])
+    print(targets[1])
+    print(targets[2])
+    print("\n\n\n\n\n\n\n")
 
     total_wer, total_cer = 0, 0
     greedy_decoder = decoder.DeepSpeechDecoder(speech_labels)
@@ -241,8 +252,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model-layers1-nodes10-iterations2-steps10-eval200recs/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model-layers1-nodes10-iterations2-steps10-eval200recs/",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-l1-n10-i2-s10-eval200recs/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-l1-n10-i2-s10-eval200recs/",
         train_epochs=1,
         batch_size=8,
         hooks="",
