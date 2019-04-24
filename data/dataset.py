@@ -246,6 +246,9 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
   max_features_length = 5909
   max_labels_length = 806
   iopo = 0
+  str1 = ""
+  str2 = ""
+  str3 = ""
 
   with tf.python_io.TFRecordWriter(tf_records_path) as writer:
     for audio_file, _, transcript in data_entries:
@@ -270,8 +273,16 @@ def convert_to_TF(deep_speech_dataset, tf_records_path):
               }))
       print("Writing File: ", audio_file, "/", str(len(data_entries)))
       print(example.SerializeToString())
+      if iopo == 0:
+        str1 = example.SerializeToString()
+      if iopo == 1:
+        str2 = example.SerializeToString()
+      if iopo == 2:
+        str3 = example.SerializeToString()
       iopo += 1
       if(iopo >= 2):
+        print(str1 in str2)
+        print(str2 in str3)
         exit(1)
     writer.write(example.SerializeToString())
     return (max_features_length, max_labels_length)
