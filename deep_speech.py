@@ -117,7 +117,7 @@ def evaluate_model(estimator, speech_labels, csv_file, input_fn_eval):
     num_of_examples = len(probs)
 
     #Extracting transcripts from csv file::::
-    with open(file_name, 'r', encoding='utf-8') as f:
+    with open(csv_file, 'r', encoding='utf-8') as f:
         lines = f.read().splitlines()
     # Skip the csv header in lines[0].
     lines = lines[1:]
@@ -488,7 +488,9 @@ def run_deep_speech(_):
        
     
     eval_csv_file = os.path.join(os.path.dirname(__file__), "data/dev.csv")
+    print("\n\n\n\n\n\\n\n\n\n\n")
     print(eval_csv_file)
+    print("\n\n\n\n\n\\n\n\n\n\n")
 
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
