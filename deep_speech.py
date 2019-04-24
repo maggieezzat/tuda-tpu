@@ -241,8 +241,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model-layers1-nodes10-iterations50-steps1000-eval/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model-layers1-nodes10-iterations50-steps1000-eval/",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_model-layers1-nodes10-iterations2-steps10-eval200recs/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/deep_speech_saved_model-layers1-nodes10-iterations2-steps10-eval200recs/",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -488,6 +488,7 @@ def run_deep_speech(_):
        
     
     eval_csv_file = os.path.join(os.path.dirname(__file__), "data/dev.csv")
+    print(eval_csv_file)
 
 
     total_training_cycle = flags_obj.train_epochs // flags_obj.epochs_between_evals
