@@ -352,6 +352,12 @@ def input_fn(batch_size, tfrecord_input, max_features_length, max_labels_length,
     return dataset
 
 
+def export_speech_labels():
+  text_featurizer = featurizer.TextFeaturizer(
+            vocab_file=_VOCABULARY_FILE
+        )
+  speech_labels = text_featurizer.speech_labels
+  return speech_labels
 
 
 def main(_):
@@ -383,6 +389,8 @@ def main(_):
     #dev_ds = generate_dataset(dev_csv)
     #(max_features_dev, max_labels_dev) = convert_to_TF(dev_ds, dev_tfrecords)
     #write_features_and_labels_lengths(max_features_dev, max_labels_dev, dev_set_lengths)
+    lab = export_speech_labels()
+    print(lab)
 
 
 
