@@ -238,7 +238,7 @@ def define_deep_speech_flags():
         model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model/",
         export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model",
         train_epochs=1,
-        batch_size=64,
+        batch_size=1,
         hooks="",
     )
     
