@@ -235,8 +235,8 @@ def define_deep_speech_flags():
     flags.adopt_module_key_flags(flags_core)
 
     flags_core.set_defaults(
-        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model-l2-n800-i20-s1000-noeval/",
-        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model-l2-n800-i20-s1000-noeval",
+        model_dir = "gs://deep_speech_bucket/german-speechdata-package-v2/model/",
+        export_dir= "gs://deep_speech_bucket/german-speechdata-package-v2/saved-model",
         train_epochs=1,
         batch_size=8,
         hooks="",
@@ -342,7 +342,7 @@ def define_deep_speech_flags():
     flags.DEFINE_integer(
         name="rnn_hidden_layers",
         #default=1,
-        default=2,
+        default=5,
         help=flags_core.help_wrap("The number of RNN layers."),
     )
 
@@ -415,7 +415,7 @@ def run_deep_speech(_):
       
       tpu_config = tf.contrib.tpu.TPUConfig(
           iterations_per_loop=flags_obj.iterations,
-          num_cores_per_replica=8,
+          #num_cores_per_replica=8,
           per_host_input_for_training=is_per_host
           ),
     )

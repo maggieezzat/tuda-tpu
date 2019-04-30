@@ -26,7 +26,8 @@ import numpy as np
 class DeepSpeechDecoder(object):
     """Greedy decoder implementation for Deep Speech model."""
 
-    def __init__(self, labels, blank_index=28):
+    #def __init__(self, labels, blank_index=28):
+    def __init__(self, labels, blank_index=33):
         """Decoder initialization.
 
     Arguments:
